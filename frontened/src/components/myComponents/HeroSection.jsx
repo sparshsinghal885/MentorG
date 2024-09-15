@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import ShinyButton from "@/components/magicui/shiny-button";
 import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
+import HyperText from "@/components/magicui/hyper-text";
 
 const container = (delay) => ({
   hidden: { x: -100, opacity: 0 },
@@ -29,6 +30,10 @@ const HeroSection = () => {
               initial="hidden"
               animate="visible"
               className='pb-16 text-5xl tracking-tight lg:mt-16 lg:text-8xl font-bold'>From Confusion to Clarity: AI-Driven Socratic Teaching</motion.h1>
+            <HyperText
+              className="text-4xl font-bold text-black dark:text-white mt-10 mb-10"
+              text="Start Learning"
+            />
             <motion.div
               variants={container(0.5)}
               initial="hidden"

@@ -20,36 +20,36 @@ import {
 const components = [
   {
     title: "Array",
-    href: "/learn/ds/array",
+    href: "/dsa/array",
     description:
       "A collection of elements stored in contiguous memory locations.",
   },
   {
     title: "Linked List",
-    href: "/learn/ds/linked-list",
+    href: "/dsa/linked-list",
     description:
       " A collection of elements connected by pointers.",
   },
   {
     title: "Stack",
-    href: "/learn/ds/stack",
+    href: "/dsa/stack",
     description:
       "A LIFO (Last-In-First-Out) data structure.",
   },
   {
     title: "Queue",
-    href: "/learn/ds/queue",
+    href: "/dsa/queue",
     description: "A FIFO (First-In-First-Out) data structure.",
   },
   {
     title: "Binary Tree",
-    href: "/learn/ds/binary-tree",
+    href: "/dsa/binary-tree",
     description:
       "A tree where each node has at most two children.",
   },
   {
     title: "Graph",
-    href: "/learn/ds/graph",
+    href: "/dsa/graph",
     description:
       "A collection of nodes (vertices) connected by edges.",
   },
@@ -58,11 +58,11 @@ const components = [
 const navItems = [
   {
     label: "Algorithms",
-    href: "/learn/algo"
+    href: "/algo"
   },
   {
     label: "Data Structure",
-    href: "/learn/ds"
+    href: "/ds"
   },
   {
     label: "AI Chatbox",
@@ -139,7 +139,7 @@ const NavBar = () => {
                 <li className="row-span-3">
                   <NavigationMenuLink asChild>
                     <Link
-                      to="/algo/dp"
+                      to="/dsa/dynamic-programming"
                       className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                     >
                       <div className="mb-2 mt-4 text-lg font-medium">
@@ -151,13 +151,13 @@ const NavBar = () => {
                     </Link>
                   </NavigationMenuLink>
                 </li>
-                <ListItem href="/algo/greedy" title="Greedy Algorithms">
+                <ListItem href="/dsa/greedy-algorithm" title="Greedy Algorithms">
                   Make locally optimal choices at each step, to achieve optimal solution.
                 </ListItem>
-                <ListItem href="/algo/divide-conquer" title="Divide and Conquer">
+                <ListItem href="/dsa/divide-conquer-algorithm" title="Divide and Conquer">
                   Breaks down problems into smaller subproblems.
                 </ListItem>
-                <ListItem href="/algo/sorting" title="Sorting Algorithms">
+                <ListItem href="/dsa/sorting-algorithm" title="Sorting Algorithms">
                   Arrange data in ordered for efficient operations.
                 </ListItem>
               </ul>

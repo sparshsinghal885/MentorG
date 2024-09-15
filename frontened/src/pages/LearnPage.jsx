@@ -1,9 +1,12 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { MagicCard } from "@/components/magicui/magic-card";
 import { Link, Outlet } from 'react-router-dom';
 
 const LearnPage = () => {
-
+  useEffect(() => {
+    // Scroll to the top when the component mounts
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className='w-full'>
       <h1 className='text-center text-7xl mt-20'>

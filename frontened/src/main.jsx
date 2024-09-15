@@ -11,6 +11,7 @@ import LearnPage from './pages/LearnPage.jsx'
 import ChatBox from './pages/ChatBox.jsx'
 import { Login } from './components/myComponents/Login.jsx'
 import Register from './components/myComponents/Register.jsx'
+import TopicPage from './pages/TopicPage.jsx'
 
 const router = createBrowserRouter(
   [
@@ -42,6 +43,10 @@ const router = createBrowserRouter(
           path: '/ds',
           element: <DSPage />,
         },
+        {
+          path:'/dsa/:topic',
+          element:<TopicPage/>
+        }
       ]
     },
     {
