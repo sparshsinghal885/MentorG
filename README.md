@@ -21,3 +21,4 @@ To get started with MentorG, follow these steps:
 
    ```bash
    git clone https://github.com/sparshsinghal885/MentorG.git
+    ```
