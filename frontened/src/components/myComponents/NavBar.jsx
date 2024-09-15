@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from 'lucide-react'
@@ -116,6 +116,8 @@ ListItem.displayName = "ListItem"
 // Updated NavBar component for React.js with improved mobile styling
 const NavBar = () => {
 
+  const navigate = useNavigate()
+
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const toggleNavBar = () => {
@@ -124,10 +126,10 @@ const NavBar = () => {
 
 
   return (
-    <div className="flex justify-between  border-slate-400 max-h-24 sticky top-0 z-50 py-3 bg-white backdrop-blur-lg border-b border-neutral-300">
-      <div className="m-6 mb-6">
+    <div className="flex justify-between  max-h-24 sticky top-0 z-50 py-3 bg-white backdrop-blur-lg border-b border-neutral-300">
+      <Link to='/' className="m-6 mb-6">
         <h2 className="text-4xl font-semibold h-full w-full mb-6">MentorG</h2>
-      </div>
+      </Link>
       <NavigationMenu className="hidden md:inline-flex">
         <NavigationMenuList>
           <NavigationMenuItem>
@@ -188,8 +190,12 @@ const NavBar = () => {
       </NavigationMenu>
 
       <div className="mr-8 m-2 hidden md:inline-flex">
-        <Button variant="outline" className="m-2">Register</Button>
-        <Button className="m-2 mb-3 bg-[#e67715]">Login</Button>
+        <Button
+          onClick={() => navigate('/auth/register')}
+          variant="outline" className="m-2">Register</Button>
+        <Button
+          onClick={() => navigate('/auth/login')}
+          className="m-2 mb-3 bg-[#e67715]">Login</Button>
       </div>
 
       <div className="md:hidden flex justify-center items-center w-16">
@@ -216,8 +222,12 @@ const NavBar = () => {
               </li>
             ))}
             <div className="mt-8">
-              <Button variant="outline" className="w-full mb-3">Register</Button>
-              <Button className="w-full bg-[#e67715]">Login</Button>
+              <Button 
+              onClick={() => navigate('/auth/register')}
+              variant="outline" className="w-full mb-3">Register</Button>
+              <Button
+              onClick={() => navigate('/auth/login')}
+              className="w-full bg-[#e67715]">Login</Button>
             </div>
           </ul>
         </div>

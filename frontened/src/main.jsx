@@ -9,6 +9,8 @@ import AlgoPage from './pages/AlgoPage.jsx'
 import DSPage from './pages/DSPage.jsx'
 import LearnPage from './pages/LearnPage.jsx'
 import ChatBox from './pages/ChatBox.jsx'
+import { Login } from './components/myComponents/Login.jsx'
+import Register from './components/myComponents/Register.jsx'
 
 const router = createBrowserRouter(
   [
@@ -31,19 +33,25 @@ const router = createBrowserRouter(
         {
           path: '/learn',
           element: <LearnPage />,
-          children: [
-            {
-              path: '/learn/algo',
-              element: <AlgoPage />,
-            },
-            {
-              path: '/learn/ds',
-              element: <DSPage />,
-            },
-          ]
+        },
+        {
+          path: '/algo',
+          element: <AlgoPage />,
+        },
+        {
+          path: '/ds',
+          element: <DSPage />,
         },
       ]
-    }
+    },
+    {
+      path: "/auth/login",
+      element: <Login />
+    },
+    {
+      path: "/auth/register",
+      element: <Register />
+    },
   ]
 )
 

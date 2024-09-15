@@ -28,7 +28,7 @@ const HeroSection = () => {
               variants={container(0)}
               initial="hidden"
               animate="visible"
-              className='pb-16 text-5xl font-thin tracking-tight lg:mt-16 lg:text-8xl font-bold'>From Confusion to Clarity: AI-Driven Socratic Teaching</motion.h1>
+              className='pb-16 text-5xl tracking-tight lg:mt-16 lg:text-8xl font-bold'>From Confusion to Clarity: AI-Driven Socratic Teaching</motion.h1>
             <motion.div
               variants={container(0.5)}
               initial="hidden"
@@ -37,7 +37,7 @@ const HeroSection = () => {
               <ShinyButton
                 text="Learn with AI >"
                 className="font-semibold border-2"
-              // onClick={() => console.log('hello')}
+                onClick={() => navigate('/learn')}
               />
               <Button className="bg-[#e67715]" onClick={() => navigate('/codebox')}>Open CodeBox</Button>
             </motion.div>

@@ -63,7 +63,7 @@ const Datastructures = () => {
             <BoxReveal boxColor={"#e67715"} duration={0.5}>
               <Button
                 className="mt-[1.6rem] bg-[#e67715]"
-                onClick={() => navigate('/learn/ds')}
+                onClick={() => navigate('/ds')}
               >Learn &rarr;</Button>
             </BoxReveal>
           </div>
