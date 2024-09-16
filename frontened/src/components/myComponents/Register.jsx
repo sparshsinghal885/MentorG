@@ -14,7 +14,7 @@ import { DotLoader } from "react-spinners"
 import { Timestamp, addDoc, collection } from "firebase/firestore";
 import { auth, fireDB } from "../../../firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import MyContext from '../../../contexts/myContext/MyContext.jsx'
+import MyContext from '../../contexts/firebaseContext/MyContext'
 import { useToast } from "../../hooks/use-toast"
 
 const Register = () => {

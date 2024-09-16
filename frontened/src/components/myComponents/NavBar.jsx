@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Menu, X } from 'lucide-react'
 import { useState } from "react"
 import { useContext, useEffect } from "react"
-import MyContext from "@/contexts/myContext/MyContext"
+import MyContext from "../../contexts/firebaseContext/MyContext"
 import {
   NavigationMenu,
   NavigationMenuContent,

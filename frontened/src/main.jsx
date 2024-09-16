@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client.js'
+import { createRoot } from 'react-dom/client';
 import App from './App.jsx'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
@@ -12,7 +12,7 @@ import ChatBox from './pages/ChatBox.jsx'
 import { Login } from './components/myComponents/Login.jsx'
 import Register from './components/myComponents/Register.jsx'
 import TopicPage from './pages/TopicPage.jsx'
-import MyContextProvider from '../contexts/myContext/MyContextProvider.jsx'
+import MyContextProvider from "../src/contexts/firebaseContext/MyContextProvider.jsx"
 import { Toaster } from './components/ui/toaster.jsx'
 
 const router = createBrowserRouter(
