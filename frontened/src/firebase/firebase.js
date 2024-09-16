@@ -1,4 +1,4 @@
-import conf from '../src/conf/confonf'
+import conf from "../conf/conf";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';

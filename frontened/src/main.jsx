@@ -14,6 +14,9 @@ import Register from './components/myComponents/Register.jsx'
 import TopicPage from './pages/TopicPage.jsx'
 import MyContextProvider from "../src/contexts/firebaseContext/MyContextProvider.jsx"
 import { Toaster } from './components/ui/toaster.jsx'
+import AdminDashBoard from './pages/admin/AdminDashBoard.jsx';
+import UserDashBoard from './pages/user/UserDashBoard.jsx';
+import AddTopicPage from './pages/admin/AddTopicPage.jsx';
 
 const router = createBrowserRouter(
   [
@@ -48,6 +51,18 @@ const router = createBrowserRouter(
         {
           path: '/dsa/:topic',
           element: <TopicPage />
+        },
+        {
+          path: '/admin-dashboard',
+          element: <AdminDashBoard />
+        },
+        {
+          path: '/user-dashboard',
+          element: <UserDashBoard />
+        },
+        {
+          path: '/add-topic',
+          element: <AddTopicPage />
         }
       ]
     },
