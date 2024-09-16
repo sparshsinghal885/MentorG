@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot } from 'react-dom/client.js'
 import App from './App.jsx'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
@@ -12,6 +12,8 @@ import ChatBox from './pages/ChatBox.jsx'
 import { Login } from './components/myComponents/Login.jsx'
 import Register from './components/myComponents/Register.jsx'
 import TopicPage from './pages/TopicPage.jsx'
+import MyContextProvider from '../contexts/myContext/MyContextProvider.jsx'
+import { Toaster } from './components/ui/toaster.jsx'
 
 const router = createBrowserRouter(
   [
@@ -44,8 +46,8 @@ const router = createBrowserRouter(
           element: <DSPage />,
         },
         {
-          path:'/dsa/:topic',
-          element:<TopicPage/>
+          path: '/dsa/:topic',
+          element: <TopicPage />
         }
       ]
     },
@@ -62,6 +64,9 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
+    <MyContextProvider>
+      <RouterProvider router={router} />
+      <Toaster />
+    </MyContextProvider>
+  </StrictMode>
 )

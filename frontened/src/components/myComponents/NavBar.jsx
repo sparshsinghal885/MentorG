@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from 'lucide-react'
 import { useState } from "react"
-
+import { useContext, useEffect } from "react"
+import MyContext from "@/contexts/myContext/MyContext"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -15,7 +16,8 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-
+import { signOut } from 'firebase/auth'
+import { auth } from "../../../firebase/firebase.js"
 
 const components = [
   {
@@ -55,20 +57,8 @@ const components = [
   },
 ]
 
-const navItems = [
-  {
-    label: "Algorithms",
-    href: "/algo"
-  },
-  {
-    label: "Data Structure",
-    href: "/ds"
-  },
-  {
-    label: "AI Chatbox",
-    href: "/chatbox"
-  },
-];
+// for small screens only
+
 
 // Corrected ListItem component with no nested <a> tags
 const ListItem = React.forwardRef(
@@ -116,6 +106,17 @@ ListItem.displayName = "ListItem"
 // Updated NavBar component for React.js with improved mobile styling
 const NavBar = () => {
 
+  const [user, setUser] = useState()
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('users'));
+    setUser(storedUser);
+  }, [])
+
+  const {
+    isLoggedIn,
+    setIsLoggedIn,
+  } = useContext(MyContext);
+
   const navigate = useNavigate()
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -124,6 +125,33 @@ const NavBar = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
   }
 
+  const Logout = () => {
+    signOut(auth);
+    localStorage.clear();
+    setIsLoggedIn(false);
+    navigate('/')
+  }
+
+  const navItems = [
+    {
+      label: "Algorithms",
+      href: "/algo"
+    },
+    {
+      label: "Data Structure",
+      href: "/ds"
+    },
+    {
+      label: "AI Chatbox",
+      href: "/chatbox"
+    },
+    ...(user ? [
+      {
+        label: "DashBoard",
+        href: `/${user?.role}-dashboard`
+      }
+    ] : [])
+  ];
 
   return (
     <div className="flex justify-between  max-h-24 sticky top-0 z-50 py-3 bg-white backdrop-blur-lg border-b border-neutral-300">
@@ -186,16 +214,32 @@ const NavBar = () => {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link to={`/${user?.role}-dashboard`}>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                DashBoard
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
 
       <div className="mr-8 m-2 hidden md:inline-flex">
-        <Button
-          onClick={() => navigate('/auth/register')}
-          variant="outline" className="m-2">Register</Button>
-        <Button
-          onClick={() => navigate('/auth/login')}
-          className="m-2 mb-3 bg-[#e67715]">Login</Button>
+        {isLoggedIn ?
+          <Button
+            onClick={Logout}
+            className="m-2 mb-3 bg-[#e67715]">Logout
+          </Button>
+          :
+          <div>
+            <Button
+              onClick={() => navigate('/auth/register')}
+              variant="outline" className="m-2">Register</Button>
+            <Button
+              onClick={() => navigate('/auth/login')}
+              className="m-2 mb-3 bg-[#e67715]">Login</Button>
+          </div>
+        }
       </div>
 
       <div className="md:hidden flex justify-center items-center w-16">
@@ -221,14 +265,21 @@ const NavBar = () => {
                 </Link>
               </li>
             ))}
-            <div className="mt-8">
-              <Button 
-              onClick={() => navigate('/auth/register')}
-              variant="outline" className="w-full mb-3">Register</Button>
+            {isLoggedIn ?
               <Button
-              onClick={() => navigate('/auth/login')}
-              className="w-full bg-[#e67715]">Login</Button>
-            </div>
+                onClick={Logout}
+                className="m-2 mb-3 bg-[#e67715]">Logout
+              </Button>
+              :
+              <div className="mt-8">
+                <Button
+                  onClick={() => navigate('/auth/register')}
+                  variant="outline" className="w-full mb-3">Register</Button>
+                <Button
+                  onClick={() => navigate('/auth/login')}
+                  className="w-full bg-[#e67715]">Login</Button>
+              </div>
+            }
           </ul>
         </div>
       )}
