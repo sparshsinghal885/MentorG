@@ -6,10 +6,10 @@ function MyContextProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   const user = JSON.parse(localStorage.getItem('users'));
-  //   user ? setIsLoggedIn(true) : setIsLoggedIn(false);
-  // }, [])
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('users'));
+    user ? setIsLoggedIn(true) : setIsLoggedIn(false);
+  }, [])
 
 
   return (
