@@ -1,61 +1,254 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import MonacoEditor from 'react-monaco-editor';
+import axios from 'axios';
 
-const CodeBox = () => {
+// Monaco Editor Language Imports
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
+import 'monaco-editor/esm/vs/basic-languages/python/python.contribution';
+import 'monaco-editor/esm/vs/basic-languages/java/java.contribution';
+import 'monaco-editor/esm/vs/basic-languages/csharp/csharp.contribution';
+import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution';
+import 'monaco-editor/esm/vs/basic-languages/html/html.contribution';
+import 'monaco-editor/esm/vs/basic-languages/css/css.contribution';
+
+const API_KEY = 'bb9742e942msh69f1c8cb16db4bfp15e275jsnc800ade032bb'; // TO DO - Secure it
+
+// Define the languages 
+const languages = {
+  javascript: { name: 'JavaScript', id: 63, extension:'js', boilerplate: `function hello() {\n\tconsole.log('Hello, world!');\n}` },
+  python: { name: 'Python', id: 71, extension: 'py', boilerplate: `def hello():\n\tprint('Hello, world!')\n\nhello()` },
+  java: { name: 'Java', id: 62, extension: 'java', boilerplate: `public class HelloWorld {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello, world!");\n\t}\n}` },
+  csharp: { name: 'C#', id: 51, extension: 'cs', boilerplate: `using System;\n\nclass Program {\n\tstatic void Main() {\n\t\tConsole.WriteLine("Hello, world!");\n\t}\n}` },
+  cpp: { name: 'C++', id: 54, extension: 'cpp', boilerplate: `#include <iostream>\n\nint main() {\n\tstd::cout << "Hello, world!" << std::endl;\n\treturn 0;\n}` },
+  // html: { name: 'HTML', id: 55, extensions: 'html', boilerplate: `<!DOCTYPE html>\n<html>\n<head>\n\t<title>Hello, World!</title>\n</head>\n<body>\n\t<h1>Hello, world!</h1>\n</body>\n</html>` },
+  // css: { name: 'CSS', id: 56, extensions: 'css', boilerplate: `body {\n\tfont-family: Arial, sans-serif;\n}\nh1 {\n\tcolor: #333;\n}` }
+};
+
+const defaultLanguage = 'javascript';
+
+// Monaco Editor options
+const editorOptions = {
+  // Basic Editor Configurations
+  readOnly: false,
+
+  // Layout and Size
+  lineNumbers: 'on',      // Options: 'on', 'off', 'relative'
+
+  // Font and Appearance
+  fontSize: 14,
+  fontFamily: 'Courier New',
+  lineHeight: 20,          // Default line height in pixels
+  wordWrap: 'on',         // Options: 'on', 'off', 'wordWrapColumn', 'bounded'
+  wordWrapColumn: 80,      // Effective only if wordWrap is 'wordWrapColumn'
+  minimap: {
+    enabled: true,
+    renderCharacters: true,
+    maxColumn: 120         // Maximum width of the minimap
+  },
+  overviewRulerLanes: 3,
+  hideCursorInOverviewRuler: false,
+
+  // Cursor
+  cursorStyle: 'line',    // Options: 'block', 'line', 'underline'
+  cursorBlinking: 'smooth', // Options: 'blink', 'smooth', 'phase', 'expand', 'solid'
+  scrollBeyondLastLine: true,
+  tabSize: 4,             // Number of spaces per tab
+  insertSpaces: true,     // If true, spaces are used for indentation
+  detectIndentation: true, // If true, automatic detection of indentation based on file content
+  autoClosingBrackets: true,
+  autoClosingQuotes: true,
+  formatOnType: true,
+  formatOnPaste: true,
+
+  // Code Folding
+  folding: true,
+  foldingStrategy: 'auto', // Options: 'auto', 'indentation'
+
+  // Code Suggestions and IntelliSense
+  suggestOnTriggerCharacters: true,
+  quickSuggestions: {
+    other: true,
+    comments: true,
+    strings: true
+  },
+  parameterHints: true,
+  autoIndent: 'full', // Options: 'none', 'keep', 'brackets', 'full'
+
+  // Accessibility
+  ariaLabel: 'Monaco Editor',
+  accessibilitySupport: 'auto', // Options: 'auto', 'on', 'off'
+
+  // Other
+  contextmenu: true,
+  multiCursorModifier: 'alt', // Options: 'alt', 'ctrl', 'meta'
+  renderWhitespace: 'boundary', // Options: 'none', 'boundary', 'all'
+  renderControlCharacters: true,
+};
+
+const styles = {
+  container: { display: 'flex', height: '100vh', overflow: 'hidden' },
+  leftPane: { width: '50%', display: 'flex', flexDirection: 'column' },
+  rightPane: { width: '50%', padding: '10px', backgroundColor: '#f5f5f5', overflow: 'auto' },
+  menu: { display: 'flex', justifyContent: 'space-around', padding: '10px', borderBottom: '1px solid #ddd' },
+  select: { marginRight: '10px' },
+  button: { marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' },
+  editor: { flex: 1 },
+  output: { whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '14px', color: '#333' },
+  loadingText: { color: '#888', fontStyle: 'italic' },
+};
+
+function CodeBox() {
+  const [code, setCode] = useState(`function hello() {\n\tconsole.log('Hello, world!');\n}`);
+  const [output, setOutput] = useState('');
+  const [language, setLanguage] = useState(defaultLanguage);
+  const [loading, setLoading] = useState(false);
+
+  // Function to execute JavaScript code locally
+  const executeLocally = (code) => {
+    setLoading(true);
+    let capturedOutput = '';
+
+    // Override console.log to capture its output
+    const originalConsoleLog = console.log;
+    console.log = (...args) => {
+      capturedOutput += args.join(' ') + '\n';
+    };
+
+    try {
+      eval(code);  // Execute the code
+      setOutput(capturedOutput || 'No output');
+    } catch (error) {
+      setOutput(`Error: ${error.message}`);
+    } finally {
+      // Restore the original console.log after execution
+      console.log = originalConsoleLog;
+      setLoading(false);
+    }
+  };
+
+  // Function to send code to Judge0 for remote execution
+  const executeWithJudge0 = async (code, languageId) => {
+    setLoading(true);
+    setOutput('Executing your code...');
+
+    try {
+      const response = await axios.post(
+        'https://judge0-ce.p.rapidapi.com/submissions', 
+        {
+          source_code: code,
+          language_id: languageId,
+          stdin: '',  // You can pass input here if needed
+        }, 
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',
+            'x-rapidapi-key': API_KEY,  // Replace with your actual API key
+          }
+        }
+      );
+
+      const token = response.data.token;
+
+      // Poll the API to get the result after execution
+      const getResult = async () => {
+        const result = await axios.get(
+          `https://judge0-ce.p.rapidapi.com/submissions/${token}`, 
+          {
+            headers: {
+              'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',
+              'x-rapidapi-key': API_KEY,  // Replace with your actual API key
+            }
+          }
+        );
+
+        if (result.data.status.id <= 2) {
+          // Status id 1 (In Queue) and 2 (Processing), wait for the result
+          setTimeout(getResult, 1000);
+        } else {
+          setOutput(result.data.stdout || result.data.stderr || 'No output');
+          setLoading(false);
+        }
+      };
+
+      getResult();
+    } catch (error) {
+      setOutput(`Error: ${error.message}`);
+      setLoading(false);
+    }
+  };
+
+  const handleRun = () => {
+    setLoading(true);
+    if (language === 'javascript') {
+      executeLocally(code);  // Execute locally if the language is JavaScript
+    } else {
+      const languageId = languages[language].id;
+      executeWithJudge0(code, languageId);  // Send code to Judge0 for other languages
+    }
+  };
+
+  const handleSave = () => {
+    const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const fileName = `code.${languages[language].extension}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Update code when the selected language changes
+  useEffect(() => {
+    setCode(languages[language].boilerplate);
+  }, [language]);
+
   return (
-    <div className="max-h-[750px] overflow-y-auto p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
-      this is codebox
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus asperiores molestiae suscipit iure! Mollitia ullam fugit, cupiditate quas incidunt dolorum pariatur debitis iusto corrupti, rem exercitationem quidem deleniti libero. Itaque?
-      Asperiores sint recusandae voluptatibus! Iusto laudantium repellendus tenetur ex et autem. Reiciendis nostrum aperiam neque corrupti explicabo veniam illo perferendis doloremque porro. Laboriosam quibusdam atque optio, nesciunt delectus ipsum voluptatum.
-      Vero ratione fugit accusamus neque sunt corrupti quam reiciendis, molestias atque non. Vel quia eos odio. Repellat sequi provident consectetur nihil magni consequatur quod assumenda? Eveniet labore culpa quidem rem?
-      Voluptate obcaecati odit asperiores officia quisquam, illum labore sed necessitatibus sint ratione voluptates eaque perferendis? Minima, explicabo, quaerat eaque ea, placeat quo cupiditate tenetur voluptas facilis aperiam dicta distinctio animi?
-      Veritatis ea aperiam placeat tempora quis molestias eligendi similique laborum nisi, quos numquam eaque beatae. Molestias, laborum! Modi repellendus eius enim quidem, beatae impedit repellat consectetur obcaecati itaque quas aspernatur!
-      Soluta repellat sapiente numquam omnis consectetur provident cupiditate quis necessitatibus aliquid id. Officia impedit ducimus velit molestias labore, dolorum, praesentium tempore maiores suscipit voluptate soluta, harum similique qui illum ipsum!
-      Harum blanditiis sequi sed cumque odio nisi veniam ex incidunt sapiente, ipsum nihil repudiandae quo, iusto natus architecto. Laudantium fugiat iste omnis quasi aliquid facere magni quibusdam, hic quod? Numquam!
-      Voluptatum ut illum, asperiores eum quia optio tempora dicta aperiam fugit nostrum tenetur obcaecati quis eveniet reiciendis possimus debitis nemo. Dolor expedita soluta perferendis voluptate illum quas natus reprehenderit accusantium!
-      Reprehenderit magni corporis autem molestiae laborum neque et blanditiis doloremque, veniam repellendus. Eos ducimus cumque recusandae sunt, sapiente hic! Consequuntur ipsam provident neque natus in et ratione necessitatibus quod illum.
-      Dolor adipisci nesciunt rem impedit quis porro distinctio, fugit obcaecati cum enim maiores quibusdam fugiat fuga provident quaerat? Magnam repellat iste voluptatum necessitatibus obcaecati esse quasi distinctio modi sunt quas.
-      Harum tempora praesentium delectus et alias facilis ipsam cum corporis at repudiandae ea ut laborum eos facere, dicta atque architecto assumenda explicabo, voluptatum in eius? Corrupti perferendis error unde harum!
-      Id quod libero, voluptatibus harum sequi eius eum saepe recusandae vitae quia voluptatem commodi obcaecati accusantium rem magnam nostrum veritatis sint eaque excepturi! Expedita iste officia praesentium libero porro voluptates.
-      Corporis maiores modi fuga, sapiente harum quam deleniti culpa aliquid non optio repudiandae, maxime ipsum? Eum id explicabo nisi beatae iure eaque ipsa, atque possimus, similique animi, reiciendis adipisci dignissimos.
-      Incidunt totam fugiat magni dolorem officiis nobis excepturi fugit necessitatibus, vel temporibus nesciunt laboriosam reprehenderit, atque corrupti ratione modi. Aliquid ex aut quidem, fuga saepe sed illum neque soluta eligendi.
-      Molestiae explicabo accusamus nobis sunt rem? Voluptates illum unde neque quia, obcaecati excepturi explicabo, consectetur atque veniam, commodi iste. Eaque voluptas iure doloribus aspernatur nisi asperiores laudantium ipsam consequatur quibusdam.
-      Reiciendis provident eligendi eveniet quas sint quo fuga pariatur facere repudiandae iusto, assumenda, est quod ab corrupti culpa dicta delectus! Quae commodi harum ut quisquam rerum! Fuga adipisci illum voluptatibus.
-      Suscipit, mollitia doloremque, debitis amet commodi quo fugiat cupiditate quia expedita excepturi dolorem quos nemo animi officia nam, doloribus corporis culpa saepe magnam beatae repellat facere molestiae vitae voluptates! Magni.
-      Similique illum nihil quasi? Aut, inventore! Magnam enim sint, quis aperiam tempora error hic optio natus dolorum veritatis eum doloremque corporis voluptatibus maiores architecto commodi accusantium. Exercitationem dolorem vel et!
-      Itaque ad quibusdam minima ipsum perferendis eum. Fugiat facilis illum aliquid, molestias possimus assumenda officia ipsa dolor facere asperiores alias nam esse quae natus corporis labore, provident quo nesciunt laborum!
-      Eos impedit voluptates beatae. Dolore architecto vitae laborum error quod! Quo commodi, repellat obcaecati rem, culpa minima explicabo doloremque, nisi quasi dolorem vitae dolor ullam consequatur totam! Assumenda, quas aspernatur!
-      Esse autem molestias illum accusantium maxime magnam rerum voluptates vel aliquam non, quam eum nobis illo dicta, quae ad debitis fugiat consectetur ut libero sunt facilis quos. Aliquid, repudiandae enim.
-      Esse, sapiente, illo consequuntur enim temporibus consequatur dolorum ullam fugiat ducimus at repudiandae suscipit beatae voluptatum! Nostrum doloribus minus quaerat explicabo commodi, cumque laudantium ex iusto totam dolorum dolorem nobis?
-      Cum quibusdam dignissimos distinctio sapiente assumenda soluta odit libero fuga accusamus. Nulla enim molestiae excepturi illo eaque dolor quia. Eum, accusantium omnis impedit dolor officiis tempore assumenda repudiandae sint quisquam.
-      Commodi, culpa quam. Et, fugiat eveniet? Blanditiis consequuntur veniam facere autem incidunt aliquam cumque fugiat doloremque alias. Obcaecati, a nihil? Qui illo voluptatibus explicabo voluptatem distinctio accusamus vitae totam delectus!
-      Nihil reiciendis voluptatum nostrum maiores necessitatibus. At, natus aliquam in libero recusandae ab rem iste amet rerum. Error non provident fugiat, facilis delectus, consequatur saepe aspernatur eius, recusandae natus quam.
-      Reiciendis harum nesciunt dolorem quisquam ipsum. Debitis, dolor libero rem vitae cumque repellat hic eum. Dolorem doloribus minus nesciunt eos libero, modi culpa, expedita laborum, maiores quaerat deserunt ea eius!
-      Quo consequatur id corrupti, ad debitis ab quibusdam ex ratione odit, accusantium quae ducimus quia odio itaque et impedit incidunt modi illo excepturi eligendi deserunt. Harum et natus delectus iure!
-      Eum praesentium ipsum necessitatibus maiores ipsa magni nulla, illum provident fugit suscipit architecto rem quis repellendus veritatis ab sit, iure ex perferendis. Facere totam quibusdam unde voluptate exercitationem illum reiciendis.
-      Sapiente eaque totam culpa fuga libero temporibus illo alias dolor voluptates, a id recusandae qui consectetur nam accusantium tempore numquam quae aliquid amet laboriosam magnam eveniet? Error nam iusto recusandae?
-      Dolorum, recusandae praesentium. Molestiae cupiditate quasi sunt ducimus beatae repudiandae eaque deserunt laboriosam velit! Fugit magni consectetur, cum explicabo repellendus doloribus commodi beatae nihil, laboriosam quae, accusamus fuga nulla temporibus.
-      Dolor, ipsa totam. Voluptatum tenetur nihil delectus, voluptates recusandae explicabo quis expedita. Aperiam hic molestias quas omnis rerum quibusdam distinctio ea, earum officia mollitia voluptatum eius facere velit quam maiores.
-      Doloremque commodi iste aperiam soluta ab perferendis distinctio molestias fuga, hic necessitatibus quisquam eos magni saepe. Vero laudantium tempora adipisci, esse reprehenderit nihil? Consectetur, sit! Suscipit eaque dolorum minima tempora.
-      Deserunt ducimus nobis iure enim fugiat voluptates recusandae itaque officiis provident veniam ipsa commodi blanditiis labore adipisci sint voluptatum ut possimus accusantium facilis nemo ipsam, eos a? Quidem, autem sed.
-      Numquam commodi maiores magnam asperiores, similique inventore deserunt consectetur dolor nesciunt aperiam eligendi. Earum voluptates, sunt voluptate illo et rem expedita recusandae molestiae, consectetur porro praesentium soluta, odit aliquam! Distinctio.
-      Non repellat ex fuga culpa veritatis laudantium expedita, dolores ipsam sint eligendi similique quia consectetur, magnam obcaecati unde, aliquam deleniti nostrum corporis cupiditate assumenda ipsa ad provident aperiam dicta. Maiores.
-      Voluptatibus ipsa aut natus quasi officia voluptas obcaecati totam adipisci aliquam possimus incidunt nam fuga doloremque, voluptates aspernatur mollitia earum maxime dolore. Magni totam dignissimos aliquam eum harum doloribus nisi.
-      Consectetur fugit maxime error est asperiores quo sint voluptates, eos quaerat ea fugiat dolorem commodi eaque. Eveniet nostrum harum perferendis, sit quod velit ipsum dolor cupiditate quasi nam, ad tenetur.
-      Animi vero cumque minima dolorem illo maxime recusandae, nobis deleniti magni ipsa voluptas at ratione eveniet. Accusamus odio in illum voluptas vero, nemo, fuga illo, neque molestias iusto voluptatem odit.
-      Dolorum earum dolore officiis perferendis id mollitia accusantium aliquid qui? Corrupti modi maxime iure assumenda vel aspernatur dolore harum dignissimos nostrum laudantium facilis, cumque voluptates cupiditate. Incidunt obcaecati dolorum minima.
-      Mollitia sed praesentium error ipsum harum, explicabo excepturi quae cupiditate deserunt. Nisi, sapiente natus obcaecati dolorem iure magnam voluptatem atque expedita veritatis officia architecto delectus fugiat perspiciatis asperiores maiores rerum?
-      Pariatur accusamus dolor consequuntur sit, repellat voluptatum vero quasi vel aliquam esse. Dicta, harum nihil! Sunt voluptatum nemo aliquam veniam dolores? Cupiditate a dolorum commodi in animi provident perferendis repudiandae!
-      Hic illo accusantium obcaecati, totam dolores distinctio accusamus ratione dolorem in quos, perspiciatis, unde alias. Nisi ad quo ullam incidunt ut provident adipisci, repellat ducimus aliquam expedita minima quidem illum.
-      Maxime molestias aut repellendus quibusdam, dolorem maiores id? Repellat saepe reiciendis, rem porro, provident ipsa corrupti accusamus quia vitae, nam nobis eum eligendi aperiam quidem exercitationem quo laboriosam animi dicta?
-      Laboriosam temporibus ex molestias odio iste blanditiis, a non possimus nulla nemo accusamus repellat, ea nisi impedit qui nam, doloribus numquam debitis tenetur placeat consequatur repudiandae harum. Deleniti, cupiditate nesciunt!
-      Unde delectus mollitia voluptates. Enim officiis aliquam veniam laudantium molestiae inventore illum soluta maxime consequuntur dolorum quo cupiditate fuga quos officia, dolores, eligendi nulla eveniet earum minima. At, quam voluptate.
-      Pariatur itaque voluptas dolore enim a consequuntur, adipisci maxime inventore voluptatum sunt quo ratione magnam unde incidunt nulla, cumque nesciunt, mollitia sed similique nostrum? Qui architecto quis velit facere nostrum.
-      Veritatis soluta tempora et voluptatem dolorum quia earum cumque, temporibus beatae expedita vel explicabo rerum. Magnam enim esse repellendus hic fuga. Iste quisquam ratione quis laborum maxime eligendi libero optio.
-      Numquam nostrum nobis officiis blanditiis optio, libero, odio cum tenetur veniam excepturi, quam aliquid ex unde vero sunt rem eius quis delectus dolorem labore! Tenetur sunt totam magnam dolores nihil.
-      Voluptatibus incidunt quasi veniam delectus similique, magnam architecto recusandae sint sunt aperiam ex, alias nulla excepturi, nostrum deleniti omnis molestiae voluptatem aliquam tenetur. Eaque, laborum. Accusantium sit cumque tempore cum.
-      Similique fugiat consectetur, libero omnis tempore reprehenderit aspernatur necessitatibus nemo, doloribus amet eligendi assumenda. Non corrupti placeat cumque, perspiciatis, optio possimus natus, quae expedita dolore asperiores necessitatibus iusto velit dignissimos.
+    <div style={styles.container}>
+      <div style={styles.leftPane}>
+        <div style={styles.menu}>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            style={styles.select}
+          >
+            {Object.keys(languages).map((key) => (
+              <option key={key} value={key}>
+                {languages[key].name}
+              </option>
+            ))}
+          </select>
+          <button onClick={handleRun} style={styles.button} disabled={loading}>
+            {loading ? 'Running...' : 'Run'}
+          </button>
+          <button onClick={handleSave} style={styles.button}>Save</button>
+        </div>
+        <MonacoEditor
+          height="calc(100vh - 60px)"
+          language={language}
+          value={code}
+          onChange={(newValue) => setCode(newValue)}
+          options={editorOptions}
+          editorDidMount={(editor) => editor.focus()}
+          theme='vs-dark'
+          style={styles.editor}
+        />
+      </div>
+      <div style={styles.rightPane}>
+        <div style={styles.menu}>
+          <p>Output</p>
+        </div>
+        {loading ? (
+          <p style={styles.loadingText}>Processing the code, please wait...</p>
+        ) : (
+          <pre style={styles.output}>{output}</pre>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default CodeBox;

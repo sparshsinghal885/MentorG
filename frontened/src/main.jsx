@@ -49,7 +49,7 @@ const router = createBrowserRouter(
           element: <DSPage />,
         },
         {
-          path: '/dsa/:topic',
+          path: '/dsa/:topicid',
           element: <TopicPage />
         },
         {

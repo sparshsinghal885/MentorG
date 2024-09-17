@@ -4,42 +4,57 @@ import { Button } from '@/components/ui/button';
 import ChatBox from './ChatBox';
 import CodeBox from './CodeBox';
 import MyContext from '@/contexts/firebaseContext/MyContext';
+import { getDoc, doc } from 'firebase/firestore';
+import { fireDB } from '@/firebase/firebase';
 
 const TopicPage = () => {
-  const { topic } = useParams();
-  const formattedTopic = topic.replace(/-/g, ' ').toUpperCase();
-
+  const { topicid } = useParams();
   const [openCodeBox, setOpenCodeBox] = useState(false);
   const [openChatBox, setOpenChatBox] = useState(true);
-  const { topics } = useContext(MyContext);
-  const [filteredTopic, setFilteredTopic] = useState(null);
+  const { topics,setLoading } = useContext(MyContext);
+  const [topic, setTopic] = useState(null)
 
-  // Find topic by title
-  const findTopicByTitle = (title) => {
-    const normalizedTitle = title.toUpperCase();
-    return topics.find(topic => topic.title.toUpperCase() === normalizedTitle) || null;
+  const getTopicData = async () => {
+    setLoading(true);
+    try {
+      console.log("Id", topicid);
+      const topicDoc = await getDoc(doc(fireDB, "dsaTopics", topicid)); // Get the document from Firestore
+      console.log('object')
+      if (topicDoc.exists()) {
+        const topicData = topicDoc.data();
+        setTopic({ ...topicData, topicid }); // Set the topic data along with its ID
+      } else {
+        console.error("Topic not found");
+      }
+    } catch (error) {
+      console.error('Error fetching topic data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Fetch topic data when component mounts or when id changes
   useEffect(() => {
-    window.scrollTo(0, 0);
-    setFilteredTopic(findTopicByTitle(formattedTopic));
-  }, [formattedTopic, topics]); // Add dependencies to ensure useEffect runs when these change
+
+    getTopicData();
+
+  }, [topicid]);
 
   const toggleView = () => {
     setOpenChatBox(prev => !prev);
     setOpenCodeBox(prev => !prev);
   };
-
+  // console.log(topics)
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="flex flex-col lg:flex-row flex-1">
         {/* DSA Topic Section (40% of the page) */}
         <div className="w-full lg:w-2/5 bg-white p-6 border-r border-gray-300">
           <h2 className="text-3xl font-semibold text-orange-600 border-b-2 border-orange-300 pb-2 mb-4 text-center">
-            {filteredTopic?.title}
+            {topic?.title}
           </h2>
           <p className="text-base text-gray-800 leading-relaxed">
-            {filteredTopic?.description}
+            {topic?.description}
           </p>
         </div>
 

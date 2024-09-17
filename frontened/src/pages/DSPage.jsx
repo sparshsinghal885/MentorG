@@ -1,26 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import BlurIn from "@/components/magicui/blur-in";
-
-const dataStructures = [
-  { name: "Array", category: "Linear", description: "A collection of elements stored in a contiguous memory location." },
-  { name: "Linked List", category: "Linear", description: "A linear data structure where each element points to the next." },
-  { name: "Stack", category: "Linear", description: "A linear data structure that follows the Last In First Out (LIFO) principle." },
-  { name: "Queue", category: "Linear", description: "A linear data structure that follows the First In First Out (FIFO) principle." },
-  { name: "Hash Table", category: "Non-Linear", description: "A data structure that implements an associative array, mapping keys to values using a hash function." },
-
-  { name: "Binary Tree", category: "Tree", description: "A tree data structure where each node has at most two children." },
-  { name: "Binary Search Tree", category: "Tree", description: "A binary tree where the left child of a node is smaller and the right child is larger." },
-  { name: "Heap", category: "Tree", description: "A special tree-based data structure that satisfies the heap property." },
-  { name: "Trie", category: "Tree", description: "A tree data structure used for efficient retrieval of keys stored in a dataset, usually used in text processing." },
-
-  { name: "Graph", category: "Non-Linear", description: "A collection of nodes connected by edges, used to represent relationships between entities." },
-  { name: "Adjacency Matrix", category: "Graph", description: "A 2D array used to represent a graph, where each cell indicates whether there is an edge between two vertices." },
-  { name: "Adjacency List", category: "Graph", description: "A collection of lists where each list represents a vertex and contains the vertices adjacent to it." },
-
-  { name: "Set", category: "Non-Linear", description: "A collection of distinct elements with no particular order." },
-  { name: "Priority Queue", category: "Non-Linear", description: "An abstract data type similar to a queue, but where each element has a priority." },
-];
+import MyContext from '@/contexts/firebaseContext/MyContext';
 
 const DSCard = ({ name, category, description, link }) => (
   <div className="p-6 bg-white shadow-lg rounded-lg hover:shadow-2xl transition duration-300">
@@ -33,16 +14,27 @@ const DSCard = ({ name, category, description, link }) => (
 
 const DSPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [dataStructures, setDataStructures] = useState([]);
+
+  const { topics } = useContext(MyContext);
 
   useEffect(() => {
     // Scroll to the top when the component mounts
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Ensure topics is an array and filter for the "Data Structure" category
+    if (Array.isArray(topics)) {
+      const filteredDataStructures = topics.filter(topic => 
+        topic.category?.toLowerCase() === 'data structure' // case-insensitive matching
+      );
+      setDataStructures(filteredDataStructures);
+    }
+  }, [topics]);
 
   // Filter data structures based on search term
   const filteredDS = dataStructures.filter(ds =>
-    ds.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ds.category.toLowerCase().includes(searchTerm.toLowerCase())
+    ds.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ds.category?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -68,11 +60,11 @@ const DSPage = () => {
         {filteredDS.length > 0 ? (
           filteredDS.map((ds) => (
             <DSCard
-              key={ds.name}
-              name={ds.name}
+              key={ds.id || ds.name}  // Use a unique key, preferably `ds.id`
+              name={ds.title}
               category={ds.category}
               description={ds.description}
-              link={`/dsa/${ds.name.toLowerCase().replace(/\s/g, '-')}`}
+              link={`/dsa/${ds.id}`}  // Use `ds.id` for URL instead of name
             />
           ))
         ) : (

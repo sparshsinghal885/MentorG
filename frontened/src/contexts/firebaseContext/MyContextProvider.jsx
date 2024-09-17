@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import MyContext from "./MyContext.jsx";
 import { useState } from "react";
 import { fireDB } from "@/firebase/firebase.js";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, getDoc } from "firebase/firestore";
 
 function MyContextProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -46,7 +46,7 @@ function MyContextProvider({ children }) {
       setIsLoggedIn,
       loading,
       setLoading,
-      topics
+      topics,
     }}>
       {children}
     </MyContext.Provider>
