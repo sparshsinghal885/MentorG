@@ -3,11 +3,19 @@ import { Link } from 'react-router-dom';
 import BlurIn from "@/components/magicui/blur-in";
 import MyContext from '@/contexts/firebaseContext/MyContext';
 
+// Helper function to limit description to 30 words
+const truncateDescription = (description) => {
+  const words = description.split(' ');
+  return words.length > 30 ? words.slice(0, 30).join(' ') + '...' : description;
+};
+
 const DSCard = ({ name, category, description, link }) => (
-  <div className="p-6 bg-white shadow-lg rounded-lg hover:shadow-2xl transition duration-300">
-    <h2 className="text-2xl font-bold">{name}</h2>
-    <p className="text-gray-500 text-sm">{category}</p>
-    <p className="mt-2">{description}</p>
+  <div className="p-6 bg-white shadow-lg rounded-lg hover:shadow-2xl transition duration-300 h-56 flex flex-col justify-between">
+    <div>
+      <h2 className="text-2xl font-bold">{name}</h2>
+      <p className="text-gray-500 text-sm">{category}</p>
+      <p className="mt-2 text-gray-700">{truncateDescription(description)}</p>
+    </div>
     <Link to={link} className="text-orange-500 hover:text-orange-700 mt-4 block">Learn With AI</Link>
   </div>
 );
@@ -21,10 +29,10 @@ const DSPage = () => {
   useEffect(() => {
     // Scroll to the top when the component mounts
     window.scrollTo(0, 0);
-    
+
     // Ensure topics is an array and filter for the "Data Structure" category
     if (Array.isArray(topics)) {
-      const filteredDataStructures = topics.filter(topic => 
+      const filteredDataStructures = topics.filter(topic =>
         topic.category?.toLowerCase() === 'data structure' // case-insensitive matching
       );
       setDataStructures(filteredDataStructures);
@@ -33,7 +41,7 @@ const DSPage = () => {
 
   // Filter data structures based on search term
   const filteredDS = dataStructures.filter(ds =>
-    ds.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ds.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ds.category?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -60,7 +68,7 @@ const DSPage = () => {
         {filteredDS.length > 0 ? (
           filteredDS.map((ds) => (
             <DSCard
-              key={ds.id || ds.name}  // Use a unique key, preferably `ds.id`
+              key={ds.id}  // Use a unique key, preferably `ds.id`
               name={ds.title}
               category={ds.category}
               description={ds.description}

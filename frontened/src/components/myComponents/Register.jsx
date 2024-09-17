@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DotLoader } from "react-spinners"
 import { Timestamp, addDoc, collection } from "firebase/firestore";
-import { auth, fireDB } from "../../../firebase/firebase";
+import { auth, fireDB } from "../../firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import MyContext from '../../contexts/firebaseContext/MyContext'
 import { useToast } from "../../hooks/use-toast"

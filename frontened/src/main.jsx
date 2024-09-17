@@ -17,6 +17,8 @@ import { Toaster } from './components/ui/toaster.jsx'
 import AdminDashBoard from './pages/admin/AdminDashBoard.jsx';
 import UserDashBoard from './pages/user/UserDashBoard.jsx';
 import AddTopicPage from './pages/admin/AddTopicPage.jsx';
+import ProtectedRouteForAdmin from './protectedRoutes/ProtectedRouteForAdmin.jsx';
+import ProtectedRouteForUser from './protectedRoutes/ProtectedRouteForUser.jsx';
 
 const router = createBrowserRouter(
   [
@@ -54,15 +56,27 @@ const router = createBrowserRouter(
         },
         {
           path: '/admin-dashboard',
-          element: <AdminDashBoard />
+          element: (
+            <ProtectedRouteForAdmin>
+              <AdminDashBoard />
+            </ProtectedRouteForAdmin>
+          )
         },
         {
           path: '/user-dashboard',
-          element: <UserDashBoard />
+          element: (
+            <ProtectedRouteForUser>
+              <UserDashBoard />
+            </ProtectedRouteForUser>
+          )
         },
         {
           path: '/add-topic',
-          element: <AddTopicPage />
+          element: (
+            <ProtectedRouteForUser>
+              <AddTopicPage />
+            </ProtectedRouteForUser>
+          )
         }
       ]
     },

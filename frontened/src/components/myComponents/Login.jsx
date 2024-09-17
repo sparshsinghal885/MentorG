@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import MyContext from "../../contexts/firebaseContext/MyContext"
 import { useContext, useState } from "react"
-import { auth, fireDB } from "../../../firebase/firebase";
+import { auth, fireDB } from "../../firebase/firebase";
 import { DotLoader } from "react-spinners"
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { query, collection, where, onSnapshot } from "firebase/firestore"
