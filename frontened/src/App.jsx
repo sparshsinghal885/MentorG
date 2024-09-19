@@ -17,47 +17,47 @@ function App() {
     }
   }
 
-  // Function to update the user's time spent
-  const updateUserTimeSpent = (day, timeSpent) => {
-    if (user) {
-      // Make a copy of dailyTimeSpent and update the day
-      const updatedDailyTimeSpent = { ...user.dailyTimeSpent, [day]: user.dailyTimeSpent[day] + timeSpent };
+  // // Function to update the user's time spent
+  // const updateUserTimeSpent = (day, timeSpent) => {
+  //   if (user) {
+  //     // Make a copy of dailyTimeSpent and update the day
+  //     const updatedDailyTimeSpent = { ...user.dailyTimeSpent, [day]: user.dailyTimeSpent[day] + timeSpent };
 
-      // Create a new user object to avoid mutating state directly
-      const updatedUser = { ...user, dailyTimeSpent: updatedDailyTimeSpent };
-      setUser(updatedUser);
+  //     // Create a new user object to avoid mutating state directly
+  //     const updatedUser = { ...user, dailyTimeSpent: updatedDailyTimeSpent };
+  //     setUser(updatedUser);
 
-      // Save updated user data
-      saveUserData(updatedUser);
-    }
-  };
+  //     // Save updated user data
+  //     saveUserData(updatedUser);
+  //   }
+  // };
 
-  useEffect(() => {
-    // Fetch user data when component mounts
-    getUserData();
+  // useEffect(() => {
+  //   // Fetch user data when component mounts
+  //   getUserData();
 
-    const startTime = new Date().getTime();
+  //   const startTime = new Date().getTime();
 
-    const handleUnload = () => {
-      const endTime = new Date().getTime();
-      const timeSpent = Math.floor((endTime - startTime) / 1000); // Time spent in seconds
+  //   const handleUnload = () => {
+  //     const endTime = new Date().getTime();
+  //     const timeSpent = Math.floor((endTime - startTime) / 1000); // Time spent in seconds
 
-      // Get the current day
-      const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
+  //     // Get the current day
+  //     const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
 
-      // Update user's time spent
-      updateUserTimeSpent(currentDay, timeSpent);
-    };
+  //     // Update user's time spent
+  //     updateUserTimeSpent(currentDay, timeSpent);
+  //   };
 
-    // Attach the event listener when the component mounts
-    window.addEventListener('beforeunload', handleUnload);
+  //   // Attach the event listener when the component mounts
+  //   window.addEventListener('beforeunload', handleUnload);
 
-    // Cleanup function to remove the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload);
-      handleUnload(); // Trigger the calculation even if navigating away
-    };
-  }, [user]); // Ensure that this effect runs when user data changes
+  //   // Cleanup function to remove the event listener when the component unmounts
+  //   return () => {
+  //     window.removeEventListener('beforeunload', handleUnload);
+  //     handleUnload(); // Trigger the calculation even if navigating away
+  //   };
+  // }, [user]); // Ensure that this effect runs when user data changes
 
   return (
     <div className="flex flex-col min-h-screen">
