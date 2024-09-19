@@ -58,7 +58,7 @@ const NavBar = () => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("users"));
+    const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
   }, []);
 

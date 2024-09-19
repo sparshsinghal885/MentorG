@@ -6,20 +6,20 @@ import CodeBox from './CodeBox';
 import MyContext from '@/contexts/firebaseContext/MyContext';
 import { getDoc, doc } from 'firebase/firestore';
 import { fireDB } from '@/firebase/firebase';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DotLoader } from 'react-spinners';
 
 const TopicPage = () => {
   const { topicid } = useParams();
   const [openCodeBox, setOpenCodeBox] = useState(false);
   const [openChatBox, setOpenChatBox] = useState(true);
-  const { topics,setLoading } = useContext(MyContext);
+  const { topics, setLoading, loading } = useContext(MyContext);
   const [topic, setTopic] = useState(null)
 
   const getTopicData = async () => {
     setLoading(true);
     try {
-      console.log("Id", topicid);
       const topicDoc = await getDoc(doc(fireDB, "dsaTopics", topicid)); // Get the document from Firestore
-      console.log('object')
       if (topicDoc.exists()) {
         const topicData = topicDoc.data();
         setTopic({ ...topicData, topicid }); // Set the topic data along with its ID
@@ -45,6 +45,11 @@ const TopicPage = () => {
     setOpenCodeBox(prev => !prev);
   };
   // console.log(topics)
+  if (loading) {
+    return <div className='w-full mt-4 flex justify-center'>
+      <DotLoader color='#e67715' />
+    </div>
+  }
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="flex flex-col lg:flex-row flex-1">
@@ -52,6 +57,15 @@ const TopicPage = () => {
         <div className="w-full lg:w-2/5 bg-white p-6 border-r border-gray-300">
           <h2 className="text-3xl font-semibold text-orange-600 border-b-2 border-orange-300 pb-2 mb-4 text-center">
             {topic?.title}
+            <div className=''>
+              <Checkbox id="terms" />
+              <label
+                htmlFor="terms"
+                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+              >
+                Mark as Done
+              </label>
+            </div>
           </h2>
           <p className="text-base text-gray-800 leading-relaxed">
             {topic?.description}

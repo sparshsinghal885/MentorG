@@ -1,6 +1,4 @@
-// src/components/Dashboard.js
-
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,6 +9,10 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import MyContext from '@/contexts/firebaseContext/MyContext';
+import { DotLoader } from 'react-spinners';
 
 // Registering chart.js components
 ChartJS.register(
@@ -22,14 +24,55 @@ ChartJS.register(
   Legend
 );
 
+
 const UserDashBoard = () => {
-  // Sample data for the bar chart
+  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
+  const { topics } = useContext(MyContext);
+
+  // Fetch user data from localStorage when the component mounts
+  useEffect(() => {
+    const storedUserData = JSON.parse(localStorage.getItem('user'));
+    if (storedUserData) {
+      setUserData(storedUserData);
+    }
+  }, []);
+
+  // Function to get the last 7 days (including today)
+  const getLast7Days = () => {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date();
+      day.setDate(day.getDate() - i); // Go back i days
+      days.push(day.toLocaleDateString('en-US', { weekday: 'long' }));
+    }
+    return days;
+  };
+
+  // Function to map time spent data for the last 7 days
+  const getTimeSpentForLast7Days = () => {
+    const days = getLast7Days();
+    const timeSpentData = days.map((day) => {
+      // Return time spent for the day from userData, or 0 if no data
+      return userData.dailyTimeSpent[day] || 0;
+    });
+    return timeSpentData;
+  };
+
+  // Safeguard: if userData is not yet loaded, display a loading state
+  if (!userData) {
+    return <div className='w-full mt-4 flex justify-center'>
+      <DotLoader color='#e67715' />
+    </div> // You can replace this with a better loading spinner
+  }
+
+  // Data for the bar chart using the user's dailyTimeSpent for the last 7 days
   const barChartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    labels: getLast7Days(), // Get the last 7 days' names
     datasets: [
       {
         label: 'Time Spent (hours)',
-        data: [1, 2, 1.5, 2.5, 3, 7, 1.5],
+        data: getTimeSpentForLast7Days(), // Get time spent data for the last 7 days
         backgroundColor: 'rgba(255, 165, 0, 0.6)', // Orange color
         borderColor: 'rgba(255, 165, 0, 1)', // Orange color
         borderWidth: 1,
@@ -75,33 +118,13 @@ const UserDashBoard = () => {
     },
   };
 
-  // Progress bar value
-  const progressBarValue = 70; // Example value
-
-  // Suggested topics
-  const suggestedTopics = [
-    "Dynamic Programming",
-    "Graph Algorithms",
-    "Greedy Algorithms",
-    "Backtracking",
-    "Advanced Data Structures",
-  ];
-
-  // Statistics for topics
-  const topicsStatistics = {
-    totalTopics: 50,
-    topicsLearned: 30,
-    topicsInProgress: 10,
-    remainingTopics: 10,
-  };
+  // Progress bar value as percentage of topics learned
+  const progressBarValue = Math.round(
+    (userData.totalTopicsLearned / topics.length) * 100
+  );
 
   return (
-    <div className=" mx-auto p-4 relative flex flex-col md:flex-row lg:h-[85vh] md:space-y-4">
-      {/* Start Learning Button */}
-      <button className="absolute top-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-orange-600 m-4 mt-8 ">
-        Start Learning
-      </button>
-
+    <div className="mx-auto p-4 relative flex flex-col md:flex-row lg:h-[85vh] md:space-y-4">
       {/* Card for User Profile and Bar Chart */}
       <div className="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row w-full h-full">
         {/* User Profile Section */}
@@ -113,9 +136,15 @@ const UserDashBoard = () => {
               className="w-24 h-24 rounded-full mr-4"
             />
             <div>
-              <h2 className="text-2xl font-semibold">John Doe</h2>
-              <p className="text-gray-600">johndoe@example.com</p>
+              <h2 className="text-2xl font-semibold">{userData.name}</h2>
+              <p className="text-gray-600">{userData.email}</p>
             </div>
+            <Button
+              onClick={() => navigate('/learn')}
+              className="m-2 mb-3 bg-[#e67715] w-1/5 ml-auto "
+            >
+              Start Learning
+            </Button>
           </div>
 
           {/* User Statistics */}
@@ -137,19 +166,15 @@ const UserDashBoard = () => {
               <div className="flex w-full border-t border-gray-300 mt-4">
                 <div className="flex-1 p-2 border-r border-gray-300">
                   <p className="text-lg font-semibold">Total Topics</p>
-                  <p>{topicsStatistics.totalTopics}</p>
+                  <p>{topics.length}</p>
                 </div>
                 <div className="flex-1 p-2 border-r border-gray-300">
                   <p className="text-lg font-semibold">Topics Learned</p>
-                  <p>{topicsStatistics.topicsLearned}</p>
-                </div>
-                <div className="flex-1 p-2 border-r border-gray-300">
-                  <p className="text-lg font-semibold">Topics in Progress</p>
-                  <p>{topicsStatistics.topicsInProgress}</p>
+                  <p>{userData.totalTopicsLearned}</p>
                 </div>
                 <div className="flex-1 p-2">
                   <p className="text-lg font-semibold">Remaining Topics</p>
-                  <p>{topicsStatistics.remainingTopics}</p>
+                  <p>{topics.length - userData.totalTopicsLearned}</p>
                 </div>
               </div>
             </div>
@@ -158,18 +183,28 @@ const UserDashBoard = () => {
             <div className="mb-4">
               <h3 className="text-xl font-semibold mb-2">Recent Activity</h3>
               <ul className="list-disc pl-5 mb-4">
-                <li>Solved Problem A</li>
-                <li>Submitted Solution B</li>
-                <li>Participated in Contest C</li>
+                {userData.recentLearnedTopics.length > 0 ? (
+                  userData.recentLearnedTopics.map((topic, index) => (
+                    <li key={index}>{topic}</li>
+                  ))
+                ) : (
+                  <li>No recent activity</li>
+                )}
               </ul>
 
               {/* Suggested Topics */}
               <div>
                 <h3 className="text-xl font-semibold mb-2">Suggested Topics</h3>
                 <ul className="list-disc pl-5">
-                  {suggestedTopics.map((topic, index) => (
-                    <li key={index} className="text-gray-600">{topic}</li>
-                  ))}
+                  {userData.suggestedTopics.length > 0 ? (
+                    userData.suggestedTopics.map((topic, index) => (
+                      <li key={index} className="text-gray-600">
+                        {topic}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No suggested topics</li>
+                  )}
                 </ul>
               </div>
             </div>
@@ -177,8 +212,8 @@ const UserDashBoard = () => {
         </div>
 
         {/* Bar Chart Section */}
-        <div className="md:w-1/2 w-full">
-          <h2 className="text-xl font-semibold mb-4">Daily Time Spent</h2>
+        <div className="md:w-1/2 w-full flex flex-col justify-center">
+          <h2 className="text-xl font-semibold mb-4 mt-4 ml-6">Daily Time Spent</h2>
           <div className="h-full">
             <Bar data={barChartData} options={barChartOptions} />
           </div>
@@ -187,12 +222,18 @@ const UserDashBoard = () => {
 
       {/* Action Buttons */}
       <div className="flex justify-end mt-4 space-x-4 absolute bottom-4 right-4 m-6">
-        <button className="bg-orange-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-orange-600">
-          Share Profile
-        </button>
-        <button className="bg-orange-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-orange-600">
+        <Button
+          onClick={() => console.log('invite')}
+          className="m-2 mb-3 bg-[#e67715]"
+        >
           Invite
-        </button>
+        </Button>
+        <Button
+          onClick={() => console.log('share')}
+          className="m-2 mb-3 bg-[#e67715]"
+        >
+          Share
+        </Button>
       </div>
     </div>
   );

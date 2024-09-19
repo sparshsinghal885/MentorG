@@ -59,8 +59,22 @@ const Register = () => {
             day: "2-digit",
             year: "numeric",
           }
-        )
+        ),
+        // New fields
+        totalTopicsLearned: 0,  
+        recentLearnedTopics: [], 
+        suggestedTopics: [], // Array to store suggested topics
+        dailyTimeSpent: {
+          Monday: 0,   // Time spent on Monday (in minutes or hours)
+          Tuesday: 0,  // Time spent on Tuesday
+          Wednesday: 0,
+          Thursday: 0,
+          Friday: 0,
+          Saturday: 0,
+          Sunday: 0,
+        }
       }
+      
 
       // create user Refrence
       const userRefrence = collection(fireDB, "user")

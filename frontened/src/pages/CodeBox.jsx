@@ -11,11 +11,11 @@ import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution';
 import 'monaco-editor/esm/vs/basic-languages/html/html.contribution';
 import 'monaco-editor/esm/vs/basic-languages/css/css.contribution';
 
-const API_KEY = 'bb9742e942msh69f1c8cb16db4bfp15e275jsnc800ade032bb'; // TO DO - Secure it
+const API_KEY = String(import.meta.env.VITE_CODEBOX_API_KEY); // TO DO - Secure it
 
 // Define the languages 
 const languages = {
-  javascript: { name: 'JavaScript', id: 63, extension:'js', boilerplate: `function hello() {\n\tconsole.log('Hello, world!');\n}` },
+  javascript: { name: 'JavaScript', id: 63, extension: 'js', boilerplate: `function hello() {\n\tconsole.log('Hello, world!');\n}` },
   python: { name: 'Python', id: 71, extension: 'py', boilerplate: `def hello():\n\tprint('Hello, world!')\n\nhello()` },
   java: { name: 'Java', id: 62, extension: 'java', boilerplate: `public class HelloWorld {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello, world!");\n\t}\n}` },
   csharp: { name: 'C#', id: 51, extension: 'cs', boilerplate: `using System;\n\nclass Program {\n\tstatic void Main() {\n\t\tConsole.WriteLine("Hello, world!");\n\t}\n}` },
@@ -133,12 +133,12 @@ function CodeBox() {
 
     try {
       const response = await axios.post(
-        'https://judge0-ce.p.rapidapi.com/submissions', 
+        'https://judge0-ce.p.rapidapi.com/submissions',
         {
           source_code: code,
           language_id: languageId,
           stdin: '',  // You can pass input here if needed
-        }, 
+        },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ function CodeBox() {
       // Poll the API to get the result after execution
       const getResult = async () => {
         const result = await axios.get(
-          `https://judge0-ce.p.rapidapi.com/submissions/${token}`, 
+          `https://judge0-ce.p.rapidapi.com/submissions/${token}`,
           {
             headers: {
               'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',

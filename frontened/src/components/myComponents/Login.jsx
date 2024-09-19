@@ -24,7 +24,8 @@ export function Login() {
     isLoggedIn,
     setIsLoggedIn,
     loading,
-    setLoading } = useContext(MyContext);
+    setLoading,
+    } = useContext(MyContext);
 
   const navigate = useNavigate();
 
@@ -54,7 +55,7 @@ export function Login() {
         const data = onSnapshot(q, (QuerySnapshot) => {
           let user;
           QuerySnapshot.forEach((doc) => user = doc.data());
-          localStorage.setItem("users", JSON.stringify(user))
+          localStorage.setItem("user", JSON.stringify(user))
           toast({
             title: `Successfully Logged in as ${user.name}`,
           })
