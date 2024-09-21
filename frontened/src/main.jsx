@@ -63,7 +63,7 @@ const router = createBrowserRouter(
           )
         },
         {
-          path: '/user-dashboard',
+          path: '/user-dashboard/:uid',
           element: (
             <ProtectedRouteForUser>
               <UserDashBoard />

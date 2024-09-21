@@ -9,10 +9,23 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import MyContext from '@/contexts/firebaseContext/MyContext';
 import { DotLoader } from 'react-spinners';
+import { Copy } from "lucide-react"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 
 // Registering chart.js components
@@ -30,6 +43,7 @@ const UserDashBoard = () => {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const { topics } = useContext(MyContext);
+  const { uid } = useParams();
 
   // Fetch user data from localStorage when the component mounts
   useEffect(() => {
@@ -132,7 +146,7 @@ const UserDashBoard = () => {
         <div className="md:w-1/2 w-full pr-4 flex flex-col">
           <div className="flex items-center mb-4 relative">
             <img
-              src="https://via.placeholder.com/100"
+              src={`${userData.imageUrl}`}
               alt="User Avatar"
               className="w-24 h-24 rounded-full mr-4"
             />
@@ -235,19 +249,81 @@ const UserDashBoard = () => {
 
       {/* Action Buttons */}
       <div className="flex justify-end mt-4 space-x-4 absolute bottom-4 right-4 m-6">
-        <Button
-          onClick={() => console.log('invite')}
-          className="m-2 mb-3 bg-[#e67715]"
-        >
-          Invite
-        </Button>
-        <Button
-          onClick={() => console.log('share')}
-          className="m-2 mb-3 bg-[#e67715]"
-        >
-          Share
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="primary" className="bg-[#e67715] text-white">Invite</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Invite Link</DialogTitle>
+              <DialogDescription>
+                Anyone who has this link will be able to view this.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center space-x-2">
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="link" className="sr-only">Link</Label>
+                <Input id="invite-link" defaultValue={`${window.location.origin}`} readOnly />
+              </div>
+              <Button
+                size="sm"
+                className="px-3 bg-[#e67715]"
+                onClick={() => {
+                  const inviteInput = document.getElementById('invite-link');
+                  inviteInput.select();
+                  document.execCommand('copy');
+                }}
+              >
+                <span className="sr-only bg-[#e67715]">Copy</span>
+                <Copy className="h-4 w-4 " />
+              </Button>
+            </div>
+            <DialogFooter className="sm:justify-start">
+              <DialogClose asChild>
+                <Button type="button" variant="secondary" className="bg-orange-200">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">Share</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Share link</DialogTitle>
+              <DialogDescription>
+                Anyone who has this link will be able to view this.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center space-x-2">
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="share-link" className="sr-only">Link</Label>
+                <Input id="share-link" defaultValue={`${window.location.origin}/user-dashboard/${uid}`} readOnly />
+              </div>
+              <Button
+                size="sm"
+                className="px-3 bg-[#e67715]"
+                onClick={() => {
+                  const shareInput = document.getElementById('share-link');
+                  shareInput.select();
+                  document.execCommand('copy');
+                }}
+              >
+                <span className="sr-only bg-[#e67715]">Copy</span>
+                <Copy className="h-4 w-4 " />
+              </Button>
+            </div>
+            <DialogFooter className="sm:justify-start">
+              <DialogClose asChild>
+                <Button type="button" variant="secondary" className="bg-orange-200">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
+
     </div>
 
   );

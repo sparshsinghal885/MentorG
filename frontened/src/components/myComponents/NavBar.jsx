@@ -129,7 +129,7 @@ const NavBar = () => {
           </NavigationMenuItem>
           {user && (
             <NavigationMenuItem>
-              <Link to={`/${user.role}-dashboard`}>
+              <Link to={`/${user.role}-dashboard/${user.uid}`}>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   DashBoard
                 </NavigationMenuLink>
