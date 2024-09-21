@@ -53,37 +53,56 @@ const UserDashBoard = () => {
     }
   }, []);
 
-  // Function to get the last 7 days (including today)
   const getLast7Days = () => {
     const days = [];
     for (let i = 6; i >= 0; i--) {
       const day = new Date();
       day.setDate(day.getDate() - i); // Go back i days
-      days.push(day.toLocaleDateString('en-US', { weekday: 'long' }));
+      // Format the date as specified
+      days.push(day.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      }));
     }
     return days;
   };
 
-  // Function to map time spent data for the last 7 days
+  // Function to map time spent data for the last 7 days from local storage
   const getTimeSpentForLast7Days = () => {
     const days = getLast7Days();
-    const timeSpentData = days.map((day) => {
-      // Return time spent for the day from userData, or 0 if no data
-      return userData.dailyTimeSpent[day] || 0;
+    const userData = JSON.parse(localStorage.getItem('user')); // Retrieve user data once
+
+    // Safeguard in case userData is not available
+    if (!userData || !userData.dailyTimeSpent) {
+      return new Array(7).fill(0); // Return an array of zeros if no data found
+    }
+
+    const timeSpentData = days.map((date) => {
+
+      const timeSpent = userData.dailyTimeSpent[date] || '0h 0m';  
+      const [hours, minutes] = timeSpent.split(' ').map((time) => {
+        const [num, unit] = [parseInt(time), time.slice(-1)];
+        return unit === 'h' ? num : 0.01667 * num; 
+      });
+      return hours + minutes; 
     });
+
     return timeSpentData;
   };
 
-  // Safeguard: if userData is not yet loaded, display a loading state
+
   if (!userData) {
-    return <div className='w-full mt-4 flex justify-center'>
-      <DotLoader color='#e67715' />
-    </div> // You can replace this with a better loading spinner
+    return (
+      <div className='w-full mt-4 flex justify-center'>
+        <DotLoader color='#e67715' />
+      </div> 
+    );
   }
 
   // Data for the bar chart using the user's dailyTimeSpent for the last 7 days
   const barChartData = {
-    labels: getLast7Days(), // Get the last 7 days' names
+    labels: getLast7Days(), // Get the last 7 days' formatted dates
     datasets: [
       {
         label: 'Time Spent (hours)',
@@ -94,7 +113,6 @@ const UserDashBoard = () => {
       },
     ],
   };
-
   // Chart options for the bar chart
   const barChartOptions = {
     responsive: true,

@@ -39,15 +39,17 @@ function MyContextProvider({ children }) {
   }, []);
 
   // Function to save user data using Firestore
-  const saveUserData = async (user) => {
+  const updateDailyTimeSpent = async (user) => {
     try {
-      const userRef = doc(fireDB, "users", user.uid); // Reference to user document
+      const userDocId = await getDocumentIdByUid(user.uid);
+      if (!userDocId)
+        return;
 
-      await updateDoc(userRef, {
+      const userDocRef = doc(fireDB, 'user', userDocId); // Reference to user document
+
+      await updateDoc(userDocRef, {
         dailyTimeSpent: user.dailyTimeSpent,
       });
-
-      console.log("User time updated successfully!");
     } catch (error) {
       console.error("Error updating user time: ", error);
     }
@@ -73,15 +75,38 @@ function MyContextProvider({ children }) {
   const fetchUser = async (uid) => {
     try {
       const userDocId = await getDocumentIdByUid(uid);
-      if (!userDocId) 
+      if (!userDocId)
         return;
-      
+
       const userDocRef = doc(fireDB, 'user', userDocId);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         setUserData(userDoc.data());
       } else {
         console.log('No such user document!');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const fetchUserForLocalStorage = async () => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    try {
+      const userDocId = await getDocumentIdByUid(storedUser.uid);
+      if (!userDocId)
+        return;
+
+      const userDocRef = doc(fireDB, 'user', userDocId);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        return userDoc.data()
+      } else {
+        console.log('No such user document!');
+        return null;
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -98,10 +123,11 @@ function MyContextProvider({ children }) {
         loading,
         setLoading,
         topics,
-        saveUserData,
+        updateDailyTimeSpent,
         fetchUser,
         userData,
-        setUserData
+        setUserData,
+        fetchUserForLocalStorage
       }}
     >
       {children}

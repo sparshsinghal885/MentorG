@@ -55,7 +55,8 @@ const Register = () => {
       await uploadBytes(imageRef, userRegister.image);
       const imageUrl = await getDownloadURL(imageRef);
 
-      // Create user object
+      
+
       const user = {
         name: userRegister.name,
         email: users.user.email,
@@ -66,13 +67,11 @@ const Register = () => {
           month: "short",
           day: "2-digit",
           year: "numeric",
-        }),
+        }),// Assign formatted date to 'date'
         totalTopicsLearned: 0,
         recentLearnedTopics: [],
         suggestedTopics: [],
-        dailyTimeSpent: {
-          
-        },
+        dailyTimeSpent: {},
         imageUrl: imageUrl,
       };
 

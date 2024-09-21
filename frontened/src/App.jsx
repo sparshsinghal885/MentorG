@@ -1,63 +1,74 @@
 import Footer from "./components/myComponents/Footer";
 import NavBar from "./components/myComponents/NavBar";
 import { Outlet } from "react-router-dom";
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext } from "react";
 import MyContext from "./contexts/firebaseContext/MyContext";
 
-
 function App() {
-  const [user, setUser] = useState(null);
-  const { saveUserData } = useContext(MyContext);
+  const { updateDailyTimeSpent, fetchUserForLocalStorage } = useContext(MyContext);
 
-  // Function to get user data from localStorage
-  function getUserData() {
+  useEffect(() => {
+    // Function to update local storage with Firebase data
+    const updateLocalStorageWithFirebaseData = async () => {
+      const userData = await fetchUserForLocalStorage(); // Fetch user data from Firebase
+      if (userData) {
+        localStorage.setItem("user", JSON.stringify(userData)); // Update local storage
+        updateDailyTimeSpent(userData); // Update context if needed
+      }
+    };
+
+    updateLocalStorageWithFirebaseData();
+
+    const todayDate = new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+
+    // Load existing time from local storage
+    let totalTimeSpentInSeconds = 0; 
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
+    
+    if (storedUser && storedUser.dailyTimeSpent[todayDate]) {
+      const existingTime = storedUser.dailyTimeSpent[todayDate];
+      const [existingHours, existingMinutes] = existingTime.split('h').map(time => parseInt(time));
+      totalTimeSpentInSeconds += existingHours * 3600 + existingMinutes * 60; // Convert to seconds
     }
-  }
 
-  // // Function to update the user's time spent
-  // const updateUserTimeSpent = (day, timeSpent) => {
-  //   if (user) {
-  //     // Make a copy of dailyTimeSpent and update the day
-  //     const updatedDailyTimeSpent = { ...user.dailyTimeSpent, [day]: user.dailyTimeSpent[day] + timeSpent };
+    let startTime = Date.now(); // Track when the user starts
 
-  //     // Create a new user object to avoid mutating state directly
-  //     const updatedUser = { ...user, dailyTimeSpent: updatedDailyTimeSpent };
-  //     setUser(updatedUser);
+    function updateTimeSpent() {
+      const endTime = Date.now();
+      const timeSpentInSeconds = Math.round((endTime - startTime) / 1000);
+      totalTimeSpentInSeconds += timeSpentInSeconds; // Accumulate the total time
 
-  //     // Save updated user data
-  //     saveUserData(updatedUser);
-  //   }
-  // };
+      const hours = Math.floor(totalTimeSpentInSeconds / 3600);
+      const minutes = Math.floor((totalTimeSpentInSeconds % 3600) / 60);
 
-  // useEffect(() => {
-  //   // Fetch user data when component mounts
-  //   getUserData();
+      if (storedUser) {
+        storedUser.dailyTimeSpent[todayDate] = `${hours}h ${minutes}m`;
+        localStorage.setItem("user", JSON.stringify(storedUser));
+        updateDailyTimeSpent(storedUser);
+      }
 
-  //   const startTime = new Date().getTime();
+      // Reset startTime for the next interval
+      startTime = Date.now();
+    }
 
-  //   const handleUnload = () => {
-  //     const endTime = new Date().getTime();
-  //     const timeSpent = Math.floor((endTime - startTime) / 1000); // Time spent in seconds
+    const intervalId = setInterval(updateTimeSpent, 60 * 1000);
 
-  //     // Get the current day
-  //     const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        startTime = Date.now(); // Reset startTime when the user returns
+      } else {
+        updateTimeSpent(); // Update time when the user leaves
+      }
+    });
 
-  //     // Update user's time spent
-  //     updateUserTimeSpent(currentDay, timeSpent);
-  //   };
-
-  //   // Attach the event listener when the component mounts
-  //   window.addEventListener('beforeunload', handleUnload);
-
-  //   // Cleanup function to remove the event listener when the component unmounts
-  //   return () => {
-  //     window.removeEventListener('beforeunload', handleUnload);
-  //     handleUnload(); // Trigger the calculation even if navigating away
-  //   };
-  // }, [user]); // Ensure that this effect runs when user data changes
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [updateDailyTimeSpent, fetchUserForLocalStorage]);
 
   return (
     <div className="flex flex-col min-h-screen">
