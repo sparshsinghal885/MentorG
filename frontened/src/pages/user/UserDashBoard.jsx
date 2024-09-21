@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import MyContext from '@/contexts/firebaseContext/MyContext';
 import { DotLoader } from 'react-spinners';
 
+
 // Registering chart.js components
 ChartJS.register(
   CategoryScale,
@@ -124,9 +125,9 @@ const UserDashBoard = () => {
   );
 
   return (
-    <div className="mx-auto p-4 relative flex flex-col md:flex-row lg:h-[85vh] md:space-y-4">
+    <div className="mx-auto  relative flex flex-col md:flex-row lg:h-screen md:space-y-4 overflow-y-auto">
       {/* Card for User Profile and Bar Chart */}
-      <div className="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row w-full h-full">
+      <div className="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row w-full h-auto min-h-full overflow-y-auto">
         {/* User Profile Section */}
         <div className="md:w-1/2 w-full pr-4 flex flex-col">
           <div className="flex items-center mb-4 relative">
@@ -141,7 +142,7 @@ const UserDashBoard = () => {
             </div>
             <Button
               onClick={() => navigate('/learn')}
-              className="m-2 mb-3 bg-[#e67715] w-1/5 ml-auto "
+              className="m-2 mb-3 bg-[#e67715] w-1/5 ml-auto"
             >
               Start Learning
             </Button>
@@ -181,12 +182,21 @@ const UserDashBoard = () => {
 
             {/* Recent Activity */}
             <div className="mb-4">
-              <h3 className="text-xl font-semibold mb-2">Recent Activity</h3>
-              <ul className="list-disc pl-5 mb-4">
+              <h3 className="text-2xl font-semibold mb-2">Recent Activity</h3>
+              <ul className="list-none pl-0 mb-4">
                 {userData.recentLearnedTopics.length > 0 ? (
-                  userData.recentLearnedTopics.map((topic, index) => (
-                    <li key={index}>{topic}</li>
-                  ))
+                  topics
+                    .filter((topic) => userData.recentLearnedTopics.includes(topic.id))
+                    .slice(0, 5)
+                    .map((topic, index) => (
+                      <li
+                        key={index}
+                        className="card cursor-pointer bg-white shadow-md hover:shadow-lg transition-shadow duration-300 rounded-lg p-4 mb-4 lg:w-1/3 "
+                        onClick={() => navigate(`/dsa/${topic.id}`)}
+                      >
+                        <div className="card-title font-bold text-base">{topic.title}</div>
+                      </li>
+                    ))
                 ) : (
                   <li>No recent activity</li>
                 )}
@@ -194,17 +204,20 @@ const UserDashBoard = () => {
 
               {/* Suggested Topics */}
               <div>
-                <h3 className="text-xl font-semibold mb-2">Suggested Topics</h3>
-                <ul className="list-disc pl-5">
-                  {userData.suggestedTopics.length > 0 ? (
-                    userData.suggestedTopics.map((topic, index) => (
-                      <li key={index} className="text-gray-600">
-                        {topic}
+                <h3 className="text-2xl font-semibold mb-2">Suggested Topics</h3>
+                <ul className="list-none pl-0 mb-4">
+                  {topics
+                    .filter((topic) => !userData.recentLearnedTopics.includes(topic.id)) // filter out done topics
+                    .slice(0, 3) // take the first 3 suggested topics
+                    .map((topic, index) => (
+                      <li
+                        key={index}
+                        className="card cursor-pointer bg-white shadow-md hover:shadow-lg transition-shadow duration-300 rounded-lg p-4 mb-4 lg:w-1/3"
+                        onClick={() => navigate(`/dsa/${topic.id}`)}
+                      >
+                        <div className="card-title font-bold text-base">{topic.title}</div>
                       </li>
-                    ))
-                  ) : (
-                    <li>No suggested topics</li>
-                  )}
+                    ))}
                 </ul>
               </div>
             </div>
@@ -236,6 +249,7 @@ const UserDashBoard = () => {
         </Button>
       </div>
     </div>
+
   );
 };
 
