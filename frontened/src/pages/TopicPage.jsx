@@ -89,7 +89,6 @@ const TopicPage = () => {
   // Fetch the latest user data and update local storage
   const refreshUserData = async () => {
     const user = JSON.parse(localStorage.getItem('user'));
-    console.log(1, user);
     if (user) {
       fetchUser(user.uid).then((latestUserData) => {
         if (latestUserData) {
@@ -106,13 +105,11 @@ const TopicPage = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    console.log(2, user);
     setUser(user);
-    refreshUserData(); 
+    refreshUserData();
 
     const completedTopics = user?.recentLearnedTopics || [];
     if (completedTopics.includes(topicid)) {
-      console.log('Exists in completed topics');
       setIsMarkedDone(true);
     } else {
       setIsMarkedDone(false);
@@ -133,49 +130,36 @@ const TopicPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col h-screen bg-gray-50">
       <div className="flex flex-col lg:flex-row flex-1">
-        <div className="w-full lg:w-2/5 bg-white p-6 border-r border-gray-300">
-          <h2 className="text-3xl font-semibold text-orange-600 border-b-2 border-orange-300 pb-2 mb-4 text-center">
+        <div className="w-full lg:w-2/5 bg-white p-6 border-r border-gray-200 shadow-sm">
+          <h2 className="text-3xl font-bold text-orange-500 border-b-2 border-orange-300 pb-2 mb-4 text-center">
             {topic?.title}
           </h2>
 
-          <label className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              checked={isMarkedDone}
-              onChange={markAsDone}
-              disabled={isMarkedDone}
-            // className="hidden"
-            />
-            {/* <div
-              className={`w-5 h-5 border-2 rounded-md flex items-center justify-center
-                ${isMarkedDone ? 'bg-orange-500 border-orange-500' : 'border-gray-300'}
-                ${!isMarkedDone && 'hover:border-orange-500'}`}
-            >
-              {isMarkedDone && (
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </div> */}
-            <span className="text-gray-700">Mark as Done</span>
-          </label>
+          <div className="flex items-center justify-between mb-4">
+            <label className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                checked={isMarkedDone}
+                onChange={(e) => {
+                  e.preventDefault();
+                  markAsDone();
+                }}
+                disabled={isMarkedDone}
+                className="form-checkbox h-5 w-5 text-orange-500"
+              />
+              <span className="text-gray-700">Mark as Done</span>
+            </label>
+          </div>
 
-          <p className="text-base text-gray-800 leading-relaxed">
+          <p className="text-base text-gray-800 leading-relaxed mb-4">
             {topic?.description}
           </p>
         </div>
 
-        <div className="w-full lg:w-3/5 bg-white p-6 flex flex-col border-l border-gray-300">
-          <div className="flex-1 overflow-y-auto">
+        <div className="w-full lg:w-3/5 bg-white p-6 flex flex-col border-l border-gray-200 shadow-sm">
+          <div className="flex-1 overflow-y-auto mb-4">
             {openChatBox && <ChatBox />}
             {openCodeBox && <CodeBox />}
           </div>
@@ -184,7 +168,7 @@ const TopicPage = () => {
             <Button
               onClick={toggleView}
               variant="outline"
-              className="w-32 bg-gray-200 border-gray-400 text-gray-800 hover:bg-gray-300 hover:text-gray-900 transition-all duration-300 shadow-md"
+              className="w-36 bg-gray-100 border-gray-400 text-gray-800 hover:bg-gray-200 hover:text-gray-900 transition-all duration-300 shadow-md"
             >
               {openChatBox ? 'Show CodeBox' : 'Show ChatBox'}
             </Button>

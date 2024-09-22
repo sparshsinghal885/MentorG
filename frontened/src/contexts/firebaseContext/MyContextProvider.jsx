@@ -2,13 +2,34 @@ import React, { useEffect } from "react";
 import MyContext from "./MyContext.jsx";
 import { useState } from "react";
 import { fireDB } from "@/firebase/firebase.js";
-import { collection, getDocs, doc, updateDoc, getDoc, where, query } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, getDoc, where, query, onSnapshot, orderBy } from "firebase/firestore";
 
 function MyContextProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [topics, setTopics] = useState([]); // State to hold all topics
+  const [topics, setTopics] = useState([]); 
   const [userData, setUserData] = useState(null);
+  const [getAllUser, setGetAllUser] = useState([]);
+
+
+  const getAllUserFunction = async () => {
+    try {
+      const q = query(
+        collection(fireDB, "user"),
+        orderBy('time')
+      );
+      const data = onSnapshot(q, (QuerySnapshot) => {
+        let userArray = [];
+        QuerySnapshot.forEach((doc) => {
+          userArray.push({ ...doc.data(), id: doc.id });
+        });
+        setGetAllUser(userArray);
+      });
+      return () => data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // Function to fetch all topics from Firestore
   const fetchAllTopics = async () => {
@@ -16,14 +37,12 @@ function MyContextProvider({ children }) {
     try {
       const topicsRef = collection(fireDB, "dsaTopics");
 
-      // Get all documents in the dsaTopics collection
       const snapshot = await getDocs(topicsRef);
       const allTopics = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      // Store all the fetched topics in the state
       setTopics(allTopics);
     } catch (err) {
       console.log(err.message);
@@ -36,6 +55,7 @@ function MyContextProvider({ children }) {
     const user = JSON.parse(localStorage.getItem("user"));
     user ? setIsLoggedIn(true) : setIsLoggedIn(false);
     fetchAllTopics();
+    getAllUserFunction()
   }, []);
 
   // Function to save user data using Firestore
@@ -127,7 +147,9 @@ function MyContextProvider({ children }) {
         fetchUser,
         userData,
         setUserData,
-        fetchUserForLocalStorage
+        fetchUserForLocalStorage,
+        getAllUser,
+        fetchAllTopics
       }}
     >
       {children}

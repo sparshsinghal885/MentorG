@@ -44,15 +44,12 @@ const AddTopicPage = () => {
         title: "All fields are required",
       })
     }
-
     setLoading(true);
     try {
-      // Reference the Firestore collection 'dsaTopics'
       const topicRef = collection(fireDB, 'dsaTopics');
       await addDoc(topicRef, {
         ...topic
       });
-
       navigate('/admin-dashboard'); // Navigate to your dashboard or another page
       setLoading(false);
     } catch (error) {

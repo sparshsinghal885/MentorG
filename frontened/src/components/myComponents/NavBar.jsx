@@ -75,7 +75,7 @@ const NavBar = () => {
 
   const navItems = [
     { label: "AI Chatbox", href: "/chatbox" },
-    ...(user ? [{ label: "DashBoard", href: `/${user?.role}-dashboard` }] : []),
+    ...(user ? [{ label: "DashBoard", href: `/${user?.role}-dashboard/${user.uid}` }] : []),
   ];
 
   const algorithmTopics = topics?.filter(topic => topic.category === 'Algorithm');

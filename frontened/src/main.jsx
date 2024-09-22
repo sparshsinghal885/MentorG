@@ -55,7 +55,7 @@ const router = createBrowserRouter(
           element: <TopicPage />
         },
         {
-          path: '/admin-dashboard',
+          path: '/admin-dashboard/:uid',
           element: (
             <ProtectedRouteForAdmin>
               <AdminDashBoard />
@@ -73,9 +73,9 @@ const router = createBrowserRouter(
         {
           path: '/add-topic',
           element: (
-            <ProtectedRouteForUser>
+            <ProtectedRouteForAdmin>
               <AddTopicPage />
-            </ProtectedRouteForUser>
+            </ProtectedRouteForAdmin>
           )
         }
       ]

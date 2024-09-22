@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import MyContext from '@/contexts/firebaseContext/MyContext';
 import { DotLoader } from 'react-spinners';
-import { Copy } from "lucide-react"
+import { Copy } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -23,12 +23,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-
-// Registering chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -38,14 +36,12 @@ ChartJS.register(
   Legend
 );
 
-
 const UserDashBoard = () => {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const { topics } = useContext(MyContext);
   const { uid } = useParams();
 
-  // Fetch user data from localStorage when the component mounts
   useEffect(() => {
     const storedUserData = JSON.parse(localStorage.getItem('user'));
     if (storedUserData) {
@@ -57,8 +53,7 @@ const UserDashBoard = () => {
     const days = [];
     for (let i = 6; i >= 0; i--) {
       const day = new Date();
-      day.setDate(day.getDate() - i); // Go back i days
-      // Format the date as specified
+      day.setDate(day.getDate() - i);
       days.push(day.toLocaleDateString("en-US", {
         month: "short",
         day: "2-digit",
@@ -68,52 +63,43 @@ const UserDashBoard = () => {
     return days;
   };
 
-  // Function to map time spent data for the last 7 days from local storage
   const getTimeSpentForLast7Days = () => {
     const days = getLast7Days();
-    const userData = JSON.parse(localStorage.getItem('user')); // Retrieve user data once
-
-    // Safeguard in case userData is not available
     if (!userData || !userData.dailyTimeSpent) {
-      return new Array(7).fill(0); // Return an array of zeros if no data found
+      return new Array(7).fill(0);
     }
 
-    const timeSpentData = days.map((date) => {
-
-      const timeSpent = userData.dailyTimeSpent[date] || '0h 0m';  
+    return days.map((date) => {
+      const timeSpent = userData.dailyTimeSpent[date] || '0h 0m';
       const [hours, minutes] = timeSpent.split(' ').map((time) => {
         const [num, unit] = [parseInt(time), time.slice(-1)];
-        return unit === 'h' ? num : 0.01667 * num; 
+        return unit === 'h' ? num : 0.01667 * num;
       });
-      return hours + minutes; 
+      return hours + minutes;
     });
-
-    return timeSpentData;
   };
-
 
   if (!userData) {
     return (
       <div className='w-full mt-4 flex justify-center'>
         <DotLoader color='#e67715' />
-      </div> 
+      </div>
     );
   }
 
-  // Data for the bar chart using the user's dailyTimeSpent for the last 7 days
   const barChartData = {
-    labels: getLast7Days(), // Get the last 7 days' formatted dates
+    labels: getLast7Days(),
     datasets: [
       {
         label: 'Time Spent (hours)',
-        data: getTimeSpentForLast7Days(), // Get time spent data for the last 7 days
-        backgroundColor: 'rgba(255, 165, 0, 0.6)', // Orange color
-        borderColor: 'rgba(255, 165, 0, 1)', // Orange color
+        data: getTimeSpentForLast7Days(),
+        backgroundColor: 'rgba(255, 165, 0, 0.6)',
+        borderColor: 'rgba(255, 165, 0, 1)',
         borderWidth: 1,
       },
     ],
   };
-  // Chart options for the bar chart
+
   const barChartOptions = {
     responsive: true,
     plugins: {
@@ -122,11 +108,16 @@ const UserDashBoard = () => {
       },
       tooltip: {
         callbacks: {
-          label: (tooltipItem) => `${tooltipItem.raw} hours`,
+          label: (tooltipItem) => {
+            const rawValue = tooltipItem.raw;
+            const hours = Math.floor(rawValue);
+            const minutes = Math.round((rawValue - hours) * 60);
+            return `${hours}h ${minutes}m`;
+          },
         },
       },
     },
-    indexAxis: 'y', // Horizontal bar chart
+    indexAxis: 'y',
     scales: {
       x: {
         beginAtZero: true,
@@ -140,10 +131,6 @@ const UserDashBoard = () => {
       },
       y: {
         beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Day of the Week',
-        },
         grid: {
           color: 'rgba(255, 165, 0, 0.2)',
         },
@@ -151,13 +138,12 @@ const UserDashBoard = () => {
     },
   };
 
-  // Progress bar value as percentage of topics learned
   const progressBarValue = Math.round(
     (userData.totalTopicsLearned / topics.length) * 100
   );
 
   return (
-    <div className="mx-auto  relative flex flex-col md:flex-row lg:h-screen md:space-y-4 overflow-y-auto">
+    <div className="mx-auto relative flex flex-col md:flex-row lg:h-screen md:space-y-4 overflow-y-auto">
       {/* Card for User Profile and Bar Chart */}
       <div className="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row w-full h-auto min-h-full overflow-y-auto">
         {/* User Profile Section */}
@@ -239,8 +225,8 @@ const UserDashBoard = () => {
                 <h3 className="text-2xl font-semibold mb-2">Suggested Topics</h3>
                 <ul className="list-none pl-0 mb-4">
                   {topics
-                    .filter((topic) => !userData.recentLearnedTopics.includes(topic.id)) // filter out done topics
-                    .slice(0, 3) // take the first 3 suggested topics
+                    .filter((topic) => !userData.recentLearnedTopics.includes(topic.id))
+                    .slice(0, 3)
                     .map((topic, index) => (
                       <li
                         key={index}
@@ -256,94 +242,92 @@ const UserDashBoard = () => {
           </div>
         </div>
 
-        {/* Bar Chart Section */}
-        <div className="md:w-1/2 w-full flex flex-col justify-center">
-          <h2 className="text-xl font-semibold mb-4 mt-4 ml-6">Daily Time Spent</h2>
-          <div className="h-full">
-            <Bar data={barChartData} options={barChartOptions} />
-          </div>
+        {/* Horizontal Bar Chart Section */}
+        <div className="md:w-1/2 w-full flex-grow">
+          <h3 className="text-xl font-semibold mb-4">Daily Time Spent (last 7 days)</h3>
+          <Bar data={barChartData} options={barChartOptions} />
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end mt-4 space-x-4 absolute bottom-4 right-4 m-6">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="primary" className="bg-[#e67715] text-white">Invite</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Invite Link</DialogTitle>
-              <DialogDescription>
-                Anyone who has this link will be able to view this.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex items-center space-x-2">
-              <div className="grid flex-1 gap-2">
-                <Label htmlFor="link" className="sr-only">Link</Label>
-                <Input id="invite-link" defaultValue={`${window.location.origin}`} readOnly />
+
+        {/* Action Buttons */}
+        <div className="flex justify-end mt-4 space-x-4 absolute bottom-4 right-4 m-6">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="primary" className="bg-[#e67715] text-white">Invite</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Invite Link</DialogTitle>
+                <DialogDescription>
+                  Anyone who has this link will be able to view this.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center space-x-2">
+                <div className="grid flex-1 gap-2">
+                  <Label htmlFor="link" className="sr-only">Link</Label>
+                  <Input id="invite-link" defaultValue={`${window.location.origin}`} readOnly />
+                </div>
+                <Button
+                  size="sm"
+                  className="px-3 bg-[#e67715]"
+                  onClick={() => {
+                    const inviteInput = document.getElementById('invite-link');
+                    inviteInput.select();
+                    document.execCommand('copy');
+                  }}
+                >
+                  <span className="sr-only bg-[#e67715]">Copy</span>
+                  <Copy className="h-4 w-4 " />
+                </Button>
               </div>
-              <Button
-                size="sm"
-                className="px-3 bg-[#e67715]"
-                onClick={() => {
-                  const inviteInput = document.getElementById('invite-link');
-                  inviteInput.select();
-                  document.execCommand('copy');
-                }}
-              >
-                <span className="sr-only bg-[#e67715]">Copy</span>
-                <Copy className="h-4 w-4 " />
-              </Button>
-            </div>
-            <DialogFooter className="sm:justify-start">
-              <DialogClose asChild>
-                <Button type="button" variant="secondary" className="bg-orange-200">Close</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary" className="bg-orange-200">Close</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">Share</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Share link</DialogTitle>
-              <DialogDescription>
-                Anyone who has this link will be able to view this.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex items-center space-x-2">
-              <div className="grid flex-1 gap-2">
-                <Label htmlFor="share-link" className="sr-only">Link</Label>
-                <Input id="share-link" defaultValue={`${window.location.origin}/user-dashboard/${uid}`} readOnly />
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Share</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Share link</DialogTitle>
+                <DialogDescription>
+                  Anyone who has this link will be able to view this.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center space-x-2">
+                <div className="grid flex-1 gap-2">
+                  <Label htmlFor="share-link" className="sr-only">Link</Label>
+                  <Input id="share-link" defaultValue={`${window.location.origin}/user-dashboard/${uid}`} readOnly />
+                </div>
+                <Button
+                  size="sm"
+                  className="px-3 bg-[#e67715]"
+                  onClick={() => {
+                    const shareInput = document.getElementById('share-link');
+                    shareInput.select();
+                    document.execCommand('copy');
+                  }}
+                >
+                  <span className="sr-only bg-[#e67715]">Copy</span>
+                  <Copy className="h-4 w-4 " />
+                </Button>
               </div>
-              <Button
-                size="sm"
-                className="px-3 bg-[#e67715]"
-                onClick={() => {
-                  const shareInput = document.getElementById('share-link');
-                  shareInput.select();
-                  document.execCommand('copy');
-                }}
-              >
-                <span className="sr-only bg-[#e67715]">Copy</span>
-                <Copy className="h-4 w-4 " />
-              </Button>
-            </div>
-            <DialogFooter className="sm:justify-start">
-              <DialogClose asChild>
-                <Button type="button" variant="secondary" className="bg-orange-200">Close</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary" className="bg-orange-200">Close</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
 
+      </div>
     </div>
-
   );
 };
 
