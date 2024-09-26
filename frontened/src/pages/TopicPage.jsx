@@ -12,7 +12,7 @@ const TopicPage = () => {
   const { topicid } = useParams();
   const [openCodeBox, setOpenCodeBox] = useState(false);
   const [openChatBox, setOpenChatBox] = useState(true);
-  const { topics, setLoading, loading, fetchUser } = useContext(MyContext);
+  const { setLoading, loading, fetchUser } = useContext(MyContext);
   const [topic, setTopic] = useState(null);
   const [isMarkedDone, setIsMarkedDone] = useState(false);
   const [user, setUser] = useState({});
@@ -23,8 +23,7 @@ const TopicPage = () => {
     try {
       const topicDoc = await getDoc(doc(fireDB, "dsaTopics", topicid));
       if (topicDoc.exists()) {
-        const topicData = topicDoc.data();
-        setTopic({ ...topicData, topicid });
+        setTopic({ ...topicDoc.data(), topicid });
       } else {
         console.error("Topic not found");
       }
@@ -70,15 +69,12 @@ const TopicPage = () => {
         totalTopicsLearned: increment(1),
       });
 
-      // Update local storage with latest user data
       const updatedUserData = {
         ...user,
         recentLearnedTopics: [...user.recentLearnedTopics, topicid],
         totalTopicsLearned: user.totalTopicsLearned + 1,
       };
       setIsMarkedDone(true);
-
-      // Set updated user data in state and localStorage
       setUser(updatedUserData);
       localStorage.setItem('user', JSON.stringify(updatedUserData));
     } catch (error) {
@@ -88,14 +84,13 @@ const TopicPage = () => {
 
   // Fetch the latest user data and update local storage
   const refreshUserData = async () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      fetchUser(user.uid).then((latestUserData) => {
-        if (latestUserData) {
-          localStorage.setItem('user', JSON.stringify(latestUserData));
-          setUser(latestUserData);
-        }
-      });
+    const localUser = JSON.parse(localStorage.getItem('user'));
+    if (localUser) {
+      const latestUserData = await fetchUser(localUser.uid);
+      if (latestUserData) {
+        localStorage.setItem('user', JSON.stringify(latestUserData));
+        setUser(latestUserData);
+      }
     }
   };
 
@@ -104,11 +99,11 @@ const TopicPage = () => {
   }, [topicid]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    setUser(user);
+    const localUser = JSON.parse(localStorage.getItem('user'));
+    setUser(localUser);
     refreshUserData();
 
-    const completedTopics = user?.recentLearnedTopics || [];
+    const completedTopics = localUser?.recentLearnedTopics || [];
     if (completedTopics.includes(topicid)) {
       setIsMarkedDone(true);
     } else {
@@ -132,6 +127,7 @@ const TopicPage = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="flex flex-col lg:flex-row flex-1">
+        {/* Topic Description Section */}
         <div className="w-full lg:w-2/5 bg-white p-6 border-r border-gray-200 shadow-sm">
           <h2 className="text-3xl font-bold text-orange-500 border-b-2 border-orange-300 pb-2 mb-4 text-center">
             {topic?.title}
@@ -158,6 +154,7 @@ const TopicPage = () => {
           </p>
         </div>
 
+        {/* ChatBox and CodeBox Section */}
         <div className="w-full lg:w-3/5 bg-white p-6 flex flex-col border-l border-gray-200 shadow-sm">
           <div className="flex-1 overflow-y-auto mb-4">
             {openChatBox && <ChatBox />}
