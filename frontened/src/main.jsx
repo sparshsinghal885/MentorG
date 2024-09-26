@@ -19,6 +19,7 @@ import UserDashBoard from './pages/user/UserDashBoard.jsx';
 import AddTopicPage from './pages/admin/AddTopicPage.jsx';
 import ProtectedRouteForAdmin from './protectedRoutes/ProtectedRouteForAdmin.jsx';
 import ProtectedRouteForUser from './protectedRoutes/ProtectedRouteForUser.jsx';
+import UpdateTopicPage from './pages/admin/UpdateTopicPage.jsx';
 
 const router = createBrowserRouter(
   [
@@ -77,7 +78,15 @@ const router = createBrowserRouter(
               <AddTopicPage />
             </ProtectedRouteForAdmin>
           )
-        }
+        },
+        {
+          path: "/update-topic/:topicid",
+          element: (
+            <ProtectedRouteForAdmin>
+              <UpdateTopicPage/>
+            </ProtectedRouteForAdmin>
+          )
+        },
       ]
     },
     {

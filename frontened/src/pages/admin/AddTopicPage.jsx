@@ -23,7 +23,7 @@ const AddTopicPage = () => {
   const navigate = useNavigate();
   const {
     loading,
-    setLoading } = useContext(MyContext);
+    setLoading, userData } = useContext(MyContext);
 
   const [topic, setTopic] = useState({
     title: "",
@@ -50,7 +50,7 @@ const AddTopicPage = () => {
       await addDoc(topicRef, {
         ...topic
       });
-      navigate('/admin-dashboard'); // Navigate to your dashboard or another page
+      navigate(`/admin-dashboard/${userData.uid}`); // Navigate to your dashboard or another page
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -65,7 +65,7 @@ const AddTopicPage = () => {
     <div>
       <div className="flex justify-center items-center h-screen">
         {/* Add Topic Form */}
-        <div className="bg-slate-100 px-8 py-6 border border-neutral-200 rounded-xl shadow-md">
+        <div className="bg-orange-100 px-8 py-6 border border-orange-200 rounded-xl shadow-md">
           <div className="mb-5">
             <h2 className="text-center text-4xl font-semibold text-black">
               Add DSA Topic
@@ -89,7 +89,7 @@ const AddTopicPage = () => {
                   title: uppercasedTitle
                 });
               }}
-              className="bg-slate-100 text-slate-700 border border-neutral-300 px-2 py-2 w-96 rounded-md outline-none placeholder-slate-300"
+              className="bg-orange-100 text-slate-700 border border-orange-300 px-2 py-2 w-96 rounded-md outline-none placeholder-slate-500"
             />
           </div>
 
@@ -103,7 +103,7 @@ const AddTopicPage = () => {
                   category: e.target.value
                 })
               }
-              className="w-full px-1 py-2 text-slate-700 bg-slate-100 border border-neutral-200 rounded-md outline-none"
+              className="w-full px-1 py-2 text-slate-700 bg-orange-100 border border-orange-300 rounded-md outline-none"
             >
               <option>Select Topic Category</option>
               {categoryList.map((value, index) => (
@@ -126,7 +126,7 @@ const AddTopicPage = () => {
               }
               placeholder="Topic Description"
               rows="5"
-              className="w-full px-2 py-1 text-slate-700 bg-slate-100 border border-neutral-200 rounded-md outline-none placeholder-slate-300"
+              className="w-full px-2 py-1 text-slate-700 bg-orange-100 border border-orange-300 rounded-md outline-none placeholder-slate-500"
             />
           </div>
 

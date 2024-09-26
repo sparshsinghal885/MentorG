@@ -21,26 +21,26 @@ const TopicRow = ({ item, index }) => {
 
   return (
     <tr key={id} className="text-slate-300">  
-      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-neutral-200 stroke-slate-500 text-slate-500 ">
+      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-orange-200 stroke-slate-500 text-slate-500 ">
         {index + 1}
       </td>
-      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-neutral-200 stroke-slate-500 text-slate-500 first-letter:uppercase ">
+      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-orange-200 stroke-slate-500 text-slate-500 first-letter:uppercase ">
         {title}
       </td>
-      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-neutral-200 stroke-slate-500 text-slate-500 first-letter:uppercase ">
+      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-orange-200 stroke-slate-500 text-slate-500 first-letter:uppercase ">
         {category}
       </td>
-      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-neutral-200 stroke-slate-500 text-slate-500 first-letter:uppercase ">
+      <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-orange-200 stroke-slate-500 text-slate-500 first-letter:uppercase ">
         {date}
       </td>
       <td
-        onClick={() => navigate(`/updateproduct/${id}`)}
-        className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-neutral-200 stroke-slate-500 text-green-500 cursor-pointer ">
+        onClick={() => navigate(`/update-topic/${id}`)}
+        className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-orange-200 stroke-slate-500 text-green-500 cursor-pointer ">
         Edit
       </td>
       <td
         onClick={() => deleteTopic(id)}
-        className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-neutral-200 stroke-slate-500 text-red-500 cursor-pointer ">
+        className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-orange-200 stroke-slate-500 text-red-500 cursor-pointer ">
         Delete
       </td>
     </tr>
