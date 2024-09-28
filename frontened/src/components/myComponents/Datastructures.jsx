@@ -1,5 +1,5 @@
 import React from 'react'
-import DataStructures from '/home/sparsh/Desktop/Mentorg/MentorG/frontened/src/assets/images/DataStructures.webp'
+import DataStructures from "../../assets/images/DataStructures.webp"
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button";
 import BoxReveal from "@/components/magicui/box-reveal";
