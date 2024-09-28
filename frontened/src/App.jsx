@@ -27,9 +27,14 @@ function App() {
 
     // Load existing time from local storage
     let totalTimeSpentInSeconds = 0;
-    const storedUser = JSON.parse(localStorage.getItem("user"));
 
-    if (storedUser && storedUser.dailyTimeSpent[todayDate]) {
+    const getStoredUserData = () => {
+      return JSON.parse(localStorage.getItem("user"));
+    };
+
+    let storedUser = getStoredUserData();
+
+    if (storedUser && storedUser.dailyTimeSpent && storedUser.dailyTimeSpent[todayDate]) {
       const existingTime = storedUser.dailyTimeSpent[todayDate];
       const [existingHours, existingMinutes] = existingTime.split('h').map(time => parseInt(time));
       totalTimeSpentInSeconds += existingHours * 3600 + existingMinutes * 60; // Convert to seconds
@@ -45,28 +50,34 @@ function App() {
       const hours = Math.floor(totalTimeSpentInSeconds / 3600);
       const minutes = Math.floor((totalTimeSpentInSeconds % 3600) / 60);
 
+      storedUser = getStoredUserData(); // Get updated user data
+
       if (storedUser) {
+        // Update the stored user's daily time spent for today
         storedUser.dailyTimeSpent[todayDate] = `${hours}h ${minutes}m`;
-        localStorage.setItem("user", JSON.stringify(storedUser));
-        updateDailyTimeSpent(storedUser);
+        localStorage.setItem("user", JSON.stringify(storedUser)); // Update local storage
+        updateDailyTimeSpent(storedUser); // Update context if needed
       }
 
       // Reset startTime for the next interval
       startTime = Date.now();
     }
 
-    const intervalId = setInterval(updateTimeSpent, 60 * 1000);
+    const intervalId = setInterval(updateTimeSpent, 60 * 1000); // Update every minute
 
-    document.addEventListener("visibilitychange", () => {
+    const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         startTime = Date.now(); // Reset startTime when the user returns
       } else {
         updateTimeSpent(); // Update time when the user leaves
       }
-    });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      clearInterval(intervalId);
+      clearInterval(intervalId); // Clear interval on unmount
+      document.removeEventListener("visibilitychange", handleVisibilityChange); // Remove event listener on unmount
     };
   }, [updateDailyTimeSpent, fetchUserForLocalStorage]);
 

@@ -7,42 +7,35 @@ import { collection, getDocs, doc, updateDoc, getDoc, where, query, onSnapshot, 
 function MyContextProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [topics, setTopics] = useState([]); 
+  const [topics, setTopics] = useState([]);
   const [userData, setUserData] = useState(null);
   const [getAllUser, setGetAllUser] = useState([]);
 
-
-  const getAllUserFunction = async () => {
+  const getAllUserFunction = () => {
     try {
-      const q = query(
-        collection(fireDB, "user"),
-        orderBy('time')
-      );
-      const data = onSnapshot(q, (QuerySnapshot) => {
+      const q = query(collection(fireDB, "user"), orderBy('time'));
+      // Directly return the onSnapshot listener function to unsubscribe later
+      return onSnapshot(q, (querySnapshot) => {
         let userArray = [];
-        QuerySnapshot.forEach((doc) => {
+        querySnapshot.forEach((doc) => {
           userArray.push({ ...doc.data(), id: doc.id });
         });
         setGetAllUser(userArray);
       });
-      return () => data;
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  // Function to fetch all topics from Firestore
   const fetchAllTopics = async () => {
     setLoading(true);
     try {
       const topicsRef = collection(fireDB, "dsaTopics");
-
       const snapshot = await getDocs(topicsRef);
       const allTopics = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
       setTopics(allTopics);
     } catch (err) {
       console.log(err.message);
@@ -53,20 +46,26 @@ function MyContextProvider({ children }) {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    user ? setIsLoggedIn(true) : setIsLoggedIn(false);
+    if (user) {
+      setIsLoggedIn(true);
+      fetchUser(user.uid);
+    } else {
+      setIsLoggedIn(false);
+    }
     fetchAllTopics();
-    getAllUserFunction()
+    const unsubscribe = getAllUserFunction(); // Save the unsubscribe function returned by onSnapshot
+
+    return () => {
+      if (unsubscribe) unsubscribe(); // Cleanup: Unsubscribe from onSnapshot listener when component unmounts
+    };
   }, []);
 
-  // Function to save user data using Firestore
   const updateDailyTimeSpent = async (user) => {
     try {
       const userDocId = await getDocumentIdByUid(user.uid);
-      if (!userDocId)
-        return;
+      if (!userDocId) return;
 
-      const userDocRef = doc(fireDB, 'user', userDocId); // Reference to user document
-
+      const userDocRef = doc(fireDB, 'user', userDocId);
       await updateDoc(userDocRef, {
         dailyTimeSpent: user.dailyTimeSpent,
       });
@@ -95,8 +94,7 @@ function MyContextProvider({ children }) {
   const fetchUser = async (uid) => {
     try {
       const userDocId = await getDocumentIdByUid(uid);
-      if (!userDocId)
-        return;
+      if (!userDocId) return;
 
       const userDocRef = doc(fireDB, 'user', userDocId);
       const userDoc = await getDoc(userDocRef);
@@ -110,20 +108,19 @@ function MyContextProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const fetchUserForLocalStorage = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
 
     try {
       const userDocId = await getDocumentIdByUid(storedUser.uid);
-      if (!userDocId)
-        return;
+      if (!userDocId) return;
 
       const userDocRef = doc(fireDB, 'user', userDocId);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
-        return userDoc.data()
+        return userDoc.data();
       } else {
         console.log('No such user document!');
         return null;
@@ -133,7 +130,7 @@ function MyContextProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <MyContext.Provider
