@@ -26,9 +26,9 @@ function App() {
     });
 
     // Load existing time from local storage
-    let totalTimeSpentInSeconds = 0; 
+    let totalTimeSpentInSeconds = 0;
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    
+
     if (storedUser && storedUser.dailyTimeSpent[todayDate]) {
       const existingTime = storedUser.dailyTimeSpent[todayDate];
       const [existingHours, existingMinutes] = existingTime.split('h').map(time => parseInt(time));
