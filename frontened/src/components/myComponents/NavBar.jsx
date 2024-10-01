@@ -166,7 +166,7 @@ const NavBar = () => {
       </div>
 
       {mobileDrawerOpen && (
-        <div className="fixed top-0 right-0 w-[75%] max-w-xs h-full bg-white p-6 shadow-lg z-50 border-l border-gray-300 transform transition-transform ease-in-out duration-300 md:hidden">
+        <div className="fixed top-0 right-0 w-[75%] max-w-xs bg-white p-6 shadow-lg z-50 border-l border-gray-300 transform transition-transform ease-in-out duration-300 md:hidden">
           <button onClick={toggleNavBar} className="mb-6">
             <X size={24} />
           </button>

@@ -125,7 +125,7 @@ const TopicPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col bg-gray-50">
       <div className="flex flex-col lg:flex-row flex-1">
         {/* Topic Description Section */}
         <div className="w-full lg:w-2/5 bg-white p-6 border-r border-gray-200 shadow-sm">

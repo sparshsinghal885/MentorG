@@ -28,7 +28,6 @@ const MentorGChat = () => {
   };
 
   const chatBoxContainerStyle = {
-    height: '600px',
     overflowY: 'auto',
     padding: '10px',
     border: '1px solid #ccc',
@@ -142,7 +141,7 @@ const MentorGChat = () => {
       {socraticMode && <p style={{ fontStyle: 'italic', color: '#555', margin: '10px 0' }}>Socratic Mode enabled!</p>}
 
       <div style={{ marginTop: '20px' }}>
-        <div style={chatBoxContainerStyle}>
+        <div style={chatBoxContainerStyle} className="lg:min-h-[60vh] min-h-[50vh]">
           {chatHistory.map((message, index) => (
             <div key={index} style={message.role === "user" ? userMessageStyle : teacherMessageStyle}>
               <strong>{message.role === "user" ? "You: " : "Teacher: "}</strong>
