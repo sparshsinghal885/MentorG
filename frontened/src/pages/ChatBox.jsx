@@ -158,6 +158,11 @@ const MentorGChat = () => {
           onChange={(e) => setUserPrompt(e.target.value)}
           placeholder="Ask a question about DSA..."
           style={inputStyle}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleUserSubmit();
+            }
+          }}
         />
         <button onClick={handleUserSubmit} style={buttonStyle}>
           Send
